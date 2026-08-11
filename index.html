@@ -1,0 +1,2370 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">RealEstatePro - الإدارة العقارية الاحترافية</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts (Cairo ONLY) -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Chart.js for Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- SheetJS for Excel Import/Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <!-- html2pdf for PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- Canvas Confetti for Celebrations -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- Firebase Compat SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Cairo', 'sans-serif'],
+                        cairo: ['Cairo', 'sans-serif'],
+                    },
+                    colors: {
+                        royal: {
+                            gold: '#D4AF37',
+                            goldLight: '#F3E5AB',
+                            goldDark: '#AA8C2C',
+                            darkBg: '#0f172a',
+                            darkCard: '#1e293b',
+                        },
+                        vivid: {
+                            orange: '#FF7F50',
+                            orangeDark: '#E06B40',
+                        }
+                    },
+                    animation: {
+                        'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'fade-in': 'fadeIn 0.3s ease-out',
+                        'slide-up': 'slideUp 0.4s ease-out',
+                        'glow-gold': 'glowGold 2s infinite alternate',
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        neonRed: { '0%': { boxShadow: '0 0 5px rgba(239, 68, 68, 0.5)' }, '100%': { boxShadow: '0 0 20px rgba(239, 68, 68, 1), 0 0 30px rgba(239, 68, 68, 0.8)' } },
+                        neonYellow: { '0%': { boxShadow: '0 0 5px rgba(234, 179, 8, 0.5)' }, '100%': { boxShadow: '0 0 20px rgba(234, 179, 8, 1), 0 0 30px rgba(234, 179, 8, 0.8)' } },
+                        glowGold: { '0%': { boxShadow: '0 0 5px rgba(212, 175, 55, 0.5)' }, '100%': { boxShadow: '0 0 20px rgba(212, 175, 55, 1)' } }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Cairo', sans-serif; transition: background-color 0.3s, color 0.3s; }
+        
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #AA8C2C; }
+
+        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.2); }
+        .dark .glass { background: rgba(30, 41, 59, 0.90); backdrop-filter: blur(15px); border: 1px solid rgba(212, 175, 55, 0.3); }
+        
+        .royal-input { width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.5rem; transition: all 0.3s; background-color: #fff; color: #1f2937; }
+        .royal-input:focus { outline: none; border-color: #D4AF37; box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2); }
+        .dark .royal-input { background-color: #0f172a; border-color: #334155; color: #f8fafc; }
+        .dark .royal-input:focus { border-color: #D4AF37; box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.4); }
+        
+        .status-sold-glow { animation: neonRed 1.5s infinite alternate !important; }
+        .status-reserved-glow { animation: neonYellow 1.5s infinite alternate !important; }
+        
+        .prop-card { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .prop-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px -5px rgba(212, 175, 55, 0.4); }
+        .dark .prop-card:hover { box-shadow: 0 20px 40px -5px rgba(212, 175, 55, 0.2); }
+
+        /* Custom Logo Animation */
+        @keyframes pulse-fade {
+            0% { opacity: 0.7; transform: scale(0.95); filter: drop-shadow(0 0 5px rgba(212, 175, 55, 0.4)); }
+            100% { opacity: 1; transform: scale(1.05); filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.9)); }
+        }
+        .logo-animated {
+            animation: pulse-fade 2.5s ease-in-out infinite alternate;
+        }
+
+        /* Creator Badge Animation */
+        @keyframes rotate-bg {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .creator-badge-wrapper {
+            position: relative; overflow: hidden; border-radius: 1rem; padding: 2px; margin-top: 2rem;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.2); transition: all 0.3s ease;
+        }
+        .creator-badge-wrapper:hover { box-shadow: 0 0 30px rgba(212, 175, 55, 0.5); transform: translateY(-3px) scale(1.02); }
+        .creator-badge-wrapper::before {
+            content: ''; position: absolute; top: -100%; left: -100%; width: 300%; height: 300%;
+            background: conic-gradient(transparent, transparent, rgba(212, 175, 55, 0.1), #D4AF37, transparent 30%);
+            animation: rotate-bg 3s linear infinite;
+        }
+        .creator-badge-inner { position: relative; background: rgba(255, 255, 255, 0.95); border-radius: 0.9rem; padding: 0.85rem 1rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem; z-index: 10; }
+        .dark .creator-badge-inner { background: rgba(15, 23, 42, 0.95); }
+
+        /* Accordion transition */
+        .accordion-content { transition: max-height 0.4s ease-out, opacity 0.4s ease-out; max-height: 0; opacity: 0; overflow: hidden; }
+        .accordion-content.open { max-height: 5000px; opacity: 1; overflow: visible; }
+        .accordion-icon { transition: transform 0.3s; }
+        .accordion-icon.open { transform: rotate(180deg); }
+
+        /* Timeline for construction */
+        .timeline-container { position: relative; }
+        .timeline-container::before { content: ''; position: absolute; top: 0; bottom: 0; right: 24px; width: 2px; background: #e5e7eb; }
+        .dark .timeline-container::before { background: #334155; }
+        .timeline-item { position: relative; padding-right: 60px; margin-bottom: 2rem; }
+        .timeline-dot { position: absolute; right: 16px; top: 0; width: 18px; height: 18px; border-radius: 50%; background: #D4AF37; border: 4px solid #fff; box-shadow: 0 0 0 2px #D4AF37; z-index: 10; }
+        .dark .timeline-dot { border-color: #1e293b; }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-royal-darkBg text-gray-800 dark:text-gray-100 antialiased overflow-x-hidden transition-colors duration-300">
+
+    <!-- Audio Element for Reminders -->
+    <audio id="reminder-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+
+    <!-- Global Loader -->
+    <div id="global-loader" class="fixed inset-0 bg-gray-900/90 backdrop-blur-md z-[999] hidden flex-col items-center justify-center text-white transition-opacity">
+        <i class="fas fa-circle-notch fa-spin text-7xl text-royal-gold mb-6 shadow-lg rounded-full"></i>
+        <p id="loader-text" class="text-2xl font-bold tracking-wide animate-pulse font-cairo">جاري المعالجة... برجاء الانتظار</p>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-4 left-4 z-[999] flex flex-col gap-2 pointer-events-none font-cairo"></div>
+
+    <!-- APP CONTAINER -->
+    <div id="app" class="h-screen flex flex-col md:flex-row"></div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAJ6NSEfC5ZYW37fWLTaljy6Onvw3faSC4",
+            authDomain: "betak-real-estate.firebaseapp.com",
+            projectId: "betak-real-estate",
+            storageBucket: "betak-real-estate.firebasestorage.app",
+            messagingSenderId: "1006094091108",
+            appId: "1:1006094091108:web:c97a15d550fcf429927071"
+        };
+        if (!firebase.apps.length) { 
+            firebase.initializeApp(firebaseConfig); 
+        }
+        const db = firebase.firestore();
+        
+        db.enablePersistence().catch(function(err) {
+            console.error("خطأ في تفعيل وضع الأوفلاين:", err);
+        });
+
+        const auth = firebase.auth();
+        auth.signInAnonymously().catch((error) => {
+            console.error("خطأ في الاتصال:", error);
+        });
+
+        const readMultipleFiles = async (files) => {
+            const cloudName = "ok4jlpdx"; 
+            const uploadPreset = "BETAK realestate_preset"; 
+            
+            const results = [];
+            for (let i = 0; i < files.length; i++) {
+                const formData = new FormData();
+                formData.append("file", files[i]);
+                formData.append("upload_preset", uploadPreset);
+
+                try {
+                    const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+                        method: "POST",
+                        body: formData
+                    });
+                    const data = await response.json();
+                    if (data.secure_url) {
+                        results.push(data.secure_url);
+                    }
+                } catch (error) {
+                    console.error("حصل خطأ في رفع الصورة:", error);
+                }
+            }
+            return results; 
+        };
+
+        const state = {
+            settings: { companyName: 'بيتك للتطوير العقاري', logo: 'https://i.ibb.co/v6Z6bVM7/BETAK-logo.png', commissionRate: 0.025 },
+            currentUser: null,
+            theme: localStorage.getItem('theme') || 'light',
+            users: [ { id: 1, name: 'المدير العام', username: 'admin', password: '123', role: 'admin', target: {type: 'money', value: 0}, isDeleted: false } ],
+            excelFiles: [],
+            activeFileId: null,
+            clients: [],
+            projects: [],
+            archive: [], 
+            currentView: 'dashboard',
+            filters: { projSearch: '', clientSearch: '', clientDateFrom: '', clientDateTo: '', archiveSearch: '', archiveDateFrom: '', archiveDateTo: '', reportDateFrom: '', reportDateTo: '' },
+            viewedProject: null,
+            viewedConstructionProject: null
+        };
+
+        const rbac = {
+            canViewReports: ['admin', 'team_leader'], 
+            canManageUsers: ['admin'],
+            canManageTargets: ['admin'],
+            canManageProjects: ['admin', 'data_entry'],
+            canUploadExcel: ['admin', 'marketing', 'employee', 'team_leader', 'data_entry'],
+            canChangeStatus: ['admin', 'employee', 'team_leader']
+        };
+
+        function checkPerm(action) {
+            if(!state.currentUser) return false;
+            return rbac[action].includes(state.currentUser.role);
+        }
+
+        function logActivity(userId, actionType, details) {
+            state.archive.push({ id: Date.now() + Math.random(), date: new Date().toISOString(), userId: userId, action: actionType, details: details });
+        }
+
+        let isDataLoaded = false; 
+        let cloudStatus = 'pending'; 
+        let lastSavedItems = {}; 
+        
+        async function loadDataFromCollections() {
+            try {
+                cloudStatus = 'pending'; 
+                if(typeof updateSyncStatus === 'function') updateSyncStatus();
+                
+                const settingsDoc = await db.collection('System').doc('Settings').get();
+                if (settingsDoc.exists) state.settings = settingsDoc.data();
+                
+                const loadCollection = async (colName) => {
+                    const snap = await db.collection(colName).get();
+                    return snap.docs.map(doc => doc.data());
+                };
+
+                // Load pure collections ONLY. Completely ignoring the old 'MainData' to stop zombie files.
+                const loadedUsers = await loadCollection('Users');
+                const loadedClients = await loadCollection('Clients');
+                const loadedProjects = await loadCollection('Projects');
+                const loadedArchive = await loadCollection('Archive');
+                const loadedExcelFiles = await loadCollection('ExcelFiles');
+
+                if(loadedUsers.length > 0) state.users = loadedUsers;
+                state.clients = loadedClients;
+                state.projects = loadedProjects;
+                state.archive = loadedArchive;
+                state.excelFiles = loadedExcelFiles;
+
+                if(settingsDoc.exists) lastSavedItems['Settings'] = JSON.stringify(state.settings);
+                
+                const initSavedItems = (col, arr) => {
+                    arr.forEach(item => { lastSavedItems[col + '_' + item.id] = JSON.stringify(item); });
+                };
+                initSavedItems('Users', state.users);
+                initSavedItems('Clients', state.clients);
+                initSavedItems('Projects', state.projects);
+                initSavedItems('Archive', state.archive);
+                initSavedItems('ExcelFiles', state.excelFiles);
+
+                isDataLoaded = true;
+                cloudStatus = 'connected';
+                if(typeof updateSyncStatus === 'function') updateSyncStatus();
+
+                if (state.currentUser) {
+                    const updatedUser = state.users.find(u => u.id === state.currentUser.id && !u.isDeleted);
+                    if(updatedUser) {
+                        state.currentUser = updatedUser;
+                        renderView();
+                    } else { 
+                        handleLogout(); 
+                    } 
+                }
+            } catch (error) {
+                console.error("خطأ في قراءة البيانات:", error);
+                cloudStatus = 'error';
+                if(typeof updateSyncStatus === 'function') updateSyncStatus();
+                isDataLoaded = true;
+            }
+        }
+
+        loadDataFromCollections();
+
+        async function syncStateToCollections() {
+            if (!isDataLoaded) return;
+            try {
+                const batch = db.batch();
+                let hasChanges = false;
+                
+                const settingsStr = JSON.stringify(state.settings);
+                if(lastSavedItems['Settings'] !== settingsStr) {
+                    batch.set(db.collection('System').doc('Settings'), state.settings);
+                    lastSavedItems['Settings'] = settingsStr;
+                    hasChanges = true;
+                }
+                
+                const syncArray = (collectionName, itemsArray) => {
+                    itemsArray.forEach(item => {
+                        if(item && item.id) {
+                            const itemStr = JSON.stringify(item);
+                            const key = collectionName + '_' + item.id;
+                            if(lastSavedItems[key] !== itemStr) {
+                                const docRef = db.collection(collectionName).doc(item.id.toString());
+                                batch.set(docRef, item);
+                                lastSavedItems[key] = itemStr;
+                                hasChanges = true;
+                            }
+                        }
+                    });
+                };
+
+                syncArray('Users', state.users);
+                syncArray('Clients', state.clients);
+                syncArray('Projects', state.projects);
+                syncArray('Archive', state.archive);
+                syncArray('ExcelFiles', state.excelFiles);
+
+                if(hasChanges) {
+                    cloudStatus = 'pending';
+                    if(typeof updateSyncStatus === 'function') updateSyncStatus();
+                    await batch.commit();
+                    cloudStatus = 'connected';
+                    if(typeof updateSyncStatus === 'function') updateSyncStatus();
+                }
+            } catch (error) {
+                console.error("خطأ في الحفظ:", error);
+                cloudStatus = 'error';
+                if(typeof updateSyncStatus === 'function') updateSyncStatus();
+            }
+        }
+
+        setInterval(syncStateToCollections, 3000);
+
+        function updateSyncStatus() {
+            const indMain = document.getElementById('sync-indicator');
+            const indMobile = document.getElementById('sync-indicator-mobile');
+            const isOnline = navigator.onLine;
+            let isGreen = false, titleText = "";
+
+            if (!isOnline) { isGreen = false; titleText = "أوفلاين"; } 
+            else if (cloudStatus === 'error') { isGreen = false; titleText = "خطأ في الاتصال بالسحابة"; } 
+            else if (!isDataLoaded || cloudStatus === 'pending') { isGreen = false; titleText = "جاري الحفظ..."; } 
+            else { isGreen = true; titleText = "متصل ومحفوظ"; }
+
+            const setStatus = (el) => {
+                if(!el) return;
+                if(isGreen) el.className = 'w-2.5 h-2.5 rounded-full transition-all duration-500 bg-green-500 shadow-[0_0_8px_#22c55e,0_0_12px_#22c55e] animate-pulse-fast';
+                else if (!isOnline) el.className = 'w-2.5 h-2.5 rounded-full transition-all duration-500 bg-gray-400 shadow-[0_0_5px_#9ca3af]';
+                else if (cloudStatus === 'pending') el.className = 'w-2.5 h-2.5 rounded-full transition-all duration-500 bg-yellow-400 shadow-[0_0_5px_#facc15] animate-pulse';
+                else el.className = 'w-2.5 h-2.5 rounded-full transition-all duration-500 bg-red-500 shadow-[0_0_5px_#ef4444]';
+                el.title = titleText;
+            };
+            
+            setStatus(indMain); setStatus(indMobile);
+        }
+
+        window.addEventListener('online', updateSyncStatus);
+        window.addEventListener('offline', updateSyncStatus);
+
+        let focusedElementId = null;
+        let cursorPosition = 0;
+
+        function saveFocus() {
+            if(document.activeElement && document.activeElement.tagName === 'INPUT' && document.activeElement.type === 'text') {
+                focusedElementId = document.activeElement.id; cursorPosition = document.activeElement.selectionStart;
+            } else { focusedElementId = null; }
+        }
+        function restoreFocus() {
+            if(focusedElementId) {
+                const el = document.getElementById(focusedElementId);
+                if(el) { el.focus(); if(el.setSelectionRange) el.setSelectionRange(cursorPosition, cursorPosition); }
+            }
+        }
+
+        if (state.theme === 'dark') document.documentElement.classList.add('dark');
+
+        function toggleTheme() {
+            const html = document.documentElement; html.classList.toggle('dark');
+            state.theme = html.classList.contains('dark') ? 'dark' : 'light'; localStorage.setItem('theme', state.theme); renderApp();
+        }
+
+        function showToast(message, type = 'success', persist = false) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            let bgColor = type === 'success' ? 'bg-green-500' : (type === 'error' ? 'bg-red-500' : (type === 'warning' ? 'bg-vivid-orange' : 'bg-blue-500'));
+            toast.className = `${bgColor} text-white px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 opacity-0 translate-y-[-20px] flex items-center gap-3 font-bold border border-white/20`;
+            let icon = type === 'error' ? 'fa-exclamation-circle' : (type === 'warning' ? 'fa-bell' : 'fa-check-circle');
+            toast.innerHTML = `<i class="fas ${icon} text-xl animate-pulse"></i><span>${message}</span>`;
+            if(persist) toast.innerHTML += `<button onclick="this.parentElement.remove()" class="ml-auto text-white hover:text-gray-200"><i class="fas fa-times"></i></button>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.remove('opacity-0', 'translate-y-[-20px]'), 10);
+            if(!persist) setTimeout(() => { toast.classList.add('opacity-0'); setTimeout(() => toast.remove(), 300); }, 4000);
+        }
+
+        function formatCurrency(num) { return new Intl.NumberFormat('ar-EG', { style: 'currency', currency: 'EGP', maximumFractionDigits: 0 }).format(num).replace('EGP', 'ج.م'); }
+        function formatDate(dateString, withTime = false) {
+            if(!dateString) return '-';
+            const options = { year: 'numeric', month: 'short', day: 'numeric', ...(withTime && {hour: '2-digit', minute:'2-digit'}) };
+            return new Date(dateString).toLocaleDateString('ar-EG', options);
+        }
+        function getExactDateTime() { return new Date().toISOString(); }
+
+        function showLoader(text) { document.getElementById('loader-text').innerText = text; document.getElementById('global-loader').classList.remove('hidden'); document.getElementById('global-loader').classList.add('flex'); }
+        function hideLoader() { document.getElementById('global-loader').classList.add('hidden'); document.getElementById('global-loader').classList.remove('flex'); }
+
+        function openModal(htmlContent) {
+            document.getElementById('modals-container').innerHTML = `
+                <div class="fixed inset-0 bg-gray-900/70 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-fade-in" onclick="closeModal(event)">
+                    <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-slide-up shadow-2xl rounded-2xl bg-white dark:bg-royal-darkCard" onclick="event.stopPropagation()">${htmlContent}</div>
+                </div>`;
+        }
+        window.closeModal = function() { document.getElementById('modals-container').innerHTML = ''; }
+
+        function showConfirmModal(message, confirmText, btnClass, onConfirm) {
+            openModal(`
+                <div class="p-6 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-t-2xl flex items-center gap-3">
+                    <i class="fas fa-exclamation-circle text-${btnClass.includes('red') ? 'red' : 'vivid-orange'}-500 text-2xl"></i>
+                    <h3 class="font-bold text-xl text-gray-800 dark:text-white">تأكيد الإجراء</h3>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-700 dark:text-gray-300 font-bold text-lg mb-6">${message}</p>
+                    <div class="flex gap-4 justify-end">
+                        <button type="button" onclick="closeModal()" class="px-5 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-bold hover:bg-gray-300 transition-colors">إلغاء</button>
+                        <button type="button" id="confirm-btn-action" class="px-5 py-2 rounded-lg text-white font-bold ${btnClass} transition-colors shadow-lg">${confirmText}</button>
+                    </div>
+                </div>
+            `);
+            document.getElementById('confirm-btn-action').onclick = () => { onConfirm(); closeModal(); };
+        }
+
+        function showPromptModal(message, defaultValue, onConfirm) {
+            openModal(`
+                <div class="p-6 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-t-2xl"><h3 class="font-bold text-xl text-gray-800 dark:text-white">${message}</h3></div>
+                <div class="p-6">
+                    <input type="text" id="prompt-input-val" class="royal-input" value="${defaultValue}">
+                    <div class="mt-6 flex gap-4 justify-end">
+                        <button type="button" onclick="closeModal()" class="px-5 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-bold hover:bg-gray-300 transition-colors">إلغاء</button>
+                        <button type="button" id="prompt-btn-action" class="px-5 py-2 rounded-lg bg-royal-gold text-white font-bold hover:bg-royal-goldDark transition-colors shadow-lg">حفظ</button>
+                    </div>
+                </div>
+            `);
+            document.getElementById('prompt-btn-action').onclick = () => { onConfirm(document.getElementById('prompt-input-val').value); closeModal(); };
+        }
+
+        function checkReminders() {
+            if(!state.currentUser) return;
+            const today = new Date().toISOString().split('T')[0];
+            const myClientsToCall = state.clients.filter(c => c.agentId === state.currentUser.id && c.followUpDate === today && !c.isDeleted);
+            if(myClientsToCall.length > 0) {
+                const names = myClientsToCall.map(c => c.name).join('، ');
+                showToast(`تذكير هام! لديك متابعات اليوم مع: ${names}`, 'warning', true);
+                const audio = document.getElementById('reminder-sound');
+                if(audio) { audio.volume = 0.7; audio.play().catch(e => console.log('Audio blocked.')); }
+            }
+        }
+        setInterval(checkReminders, 30 * 60 * 1000);
+
+        function renderApp() {
+            const app = document.getElementById('app');
+            if (!state.currentUser) app.innerHTML = getLoginHTML();
+            else { app.innerHTML = getLayoutHTML(); renderView(); setTimeout(checkReminders, 1000); }
+        }
+
+        function changeView(view) {
+            state.currentView = view; state.viewedProject = null; state.viewedConstructionProject = null;
+            if(window.innerWidth < 768) toggleSidebar(false);
+            renderView();
+        }
+
+        function toggleSidebar(forceOpen) {
+            const sidebar = document.getElementById('sidebar'); const overlay = document.getElementById('mobile-overlay');
+            if(forceOpen) { sidebar.classList.remove('translate-x-full'); sidebar.classList.add('translate-x-0'); overlay.classList.remove('hidden'); setTimeout(() => overlay.classList.remove('opacity-0'), 10); } 
+            else { sidebar.classList.add('translate-x-full'); sidebar.classList.remove('translate-x-0'); overlay.classList.add('opacity-0'); setTimeout(() => overlay.classList.add('hidden'), 300); }
+        }
+
+        function toggleAccordion(id) {
+            const content = document.getElementById('acc-content-' + id); const icon = document.getElementById('acc-icon-' + id);
+            content.classList.toggle('open'); icon.classList.toggle('open');
+        }
+
+        function getAllUnits() {
+            let allUnits = [];
+            (state.projects || []).filter(p=>!p.isDeleted).forEach(p => { (p.floors || []).forEach(f => { (f.units || []).forEach(u => allUnits.push(u)) }) });
+            return allUnits;
+        }
+
+        function getLayoutHTML() {
+            const isAdmin = state.currentUser.role === 'admin';
+            return `
+            <div id="mobile-overlay" onclick="toggleSidebar(false)" class="fixed inset-0 bg-gray-900/60 z-40 hidden opacity-0 transition-opacity duration-300 md:hidden"></div>
+            <aside id="sidebar" class="fixed md:static inset-y-0 right-0 z-50 w-72 bg-white dark:bg-royal-darkCard border-l border-gray-200 dark:border-gray-800 flex flex-col transform translate-x-full md:translate-x-0 transition-transform duration-300 shadow-2xl md:shadow-none">
+                <div class="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50 dark:bg-royal-darkBg">
+                    <div class="flex items-center gap-3">
+                        <img src="${state.settings.logo}" class="h-10 w-auto object-contain logo-animated" onerror="this.src='https://placehold.co/400x100/transparent/D4AF37?text=BETAK'">
+                        <div id="sync-indicator-mobile" class="w-2.5 h-2.5 rounded-full bg-gray-400 shadow-[0_0_5px_#9ca3af]"></div>
+                    </div>
+                    <button onclick="toggleSidebar(false)" class="md:hidden text-gray-500 hover:text-vivid-orange dark:text-gray-400"><i class="fas fa-times text-2xl"></i></button>
+                </div>
+                
+                <div class="p-4 m-4 rounded-xl bg-gradient-to-br from-gray-100 to-white dark:from-gray-800 dark:to-gray-900 border border-gray-200 dark:border-gray-700 shadow-inner flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full bg-royal-gold flex items-center justify-center text-white font-bold text-xl shadow-md"><i class="fas fa-user"></i></div>
+                    <div class="flex-1 overflow-hidden">
+                        <p class="text-base font-bold text-gray-800 dark:text-white truncate">${state.currentUser.name}</p>
+                        <p class="text-xs font-semibold text-royal-goldDark dark:text-royal-goldLight">${{admin:'المدير العام', employee:'مبيعات', marketing:'تسويق', team_leader:'تيم ليدر', data_entry:'مدخل بيانات'}[state.currentUser.role]}</p>
+                    </div>
+                </div>
+
+                <nav class="flex-1 px-4 py-2 space-y-1.5 overflow-y-auto">
+                    <a href="#" id="nav-dashboard" onclick="changeView('dashboard')" class="menu-item flex items-center gap-4 px-4 py-3 rounded-xl font-bold transition-all"><i class="fas fa-chart-pie w-5 text-center text-lg"></i> اللوحة الرئيسية</a>
+                    <a href="#" id="nav-leads" onclick="changeView('leads')" class="menu-item flex items-center gap-4 px-4 py-3 rounded-xl font-bold transition-all"><i class="fas fa-filter w-5 text-center text-lg"></i> فلترة Leads</a>
+                    <a href="#" id="nav-clients" onclick="changeView('clients')" class="menu-item flex items-center gap-4 px-4 py-3 rounded-xl font-bold transition-all"><i class="fas fa-users w-5 text-center text-lg"></i> العملاء (CRM)</a>
+                    <a href="#" id="nav-properties" onclick="changeView('properties')" class="menu-item flex items-center gap-4 px-4 py-3 rounded-xl font-bold transition-all"><i class="fas fa-building w-5 text-center text-lg"></i> المعرض العقاري (المشروعات)</a>
+                    <a href="#" id="nav-construction" onclick="changeView('construction')" class="menu-item flex items-center gap-4 px-4 py-3 rounded-xl font-bold transition-all"><i class="fas fa-hard-hat w-5 text-center text-lg text-vivid-orange"></i> مراحل الإنشاء (Updates)</a>
+                    <a href="#" id="nav-archive" onclick="changeView('archive')" class="menu-item flex items-center gap-4 px-4 py-3 rounded-xl font-bold transition-all"><i class="fas fa-history w-5 text-center text-lg"></i> سجل النشاط العام</a>
+                    
+                    ${checkPerm('canViewReports') || checkPerm('canManageUsers') ? `
+                    <div class="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700">
+                        <p class="px-4 text-xs font-black text-gray-400 dark:text-gray-500 mb-3 uppercase">الإدارة والتقارير</p>
+                        ${checkPerm('canManageTargets') ? `<a href="#" id="nav-targets" onclick="changeView('targets')" class="menu-item flex items-center gap-4 px-4 py-3 rounded-xl font-bold transition-all mb-1"><i class="fas fa-bullseye w-5 text-center text-lg text-blue-500"></i> إدارة أهداف الموظفين</a>` : ''}
+                        ${checkPerm('canViewReports') ? `<a href="#" id="nav-reports" onclick="changeView('reports')" class="menu-item flex items-center gap-4 px-4 py-3 rounded-xl font-bold transition-all mb-1"><i class="fas fa-file-invoice-dollar w-5 text-center text-lg"></i> تقارير الموظفين والأداء</a>` : ''}
+                        ${checkPerm('canManageUsers') ? `<a href="#" id="nav-users" onclick="changeView('users')" class="menu-item flex items-center gap-4 px-4 py-3 rounded-xl font-bold transition-all mb-1"><i class="fas fa-user-shield w-5 text-center text-lg"></i> إدارة الموظفين</a>` : ''}
+                    </div>` : ''}
+
+                    ${isAdmin ? `
+                    <div class="pt-2 mt-2">
+                        <a href="#" id="nav-trash" onclick="changeView('trash')" class="menu-item flex items-center gap-4 px-4 py-3 rounded-xl font-bold transition-all text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"><i class="fas fa-trash-alt w-5 text-center text-lg"></i> سلة المهملات</a>
+                    </div>
+                    ` : ''}
+                </nav>
+
+                <div class="p-4 border-t border-gray-200 dark:border-gray-800 flex flex-col gap-2 bg-gray-50 dark:bg-royal-darkBg">
+                    <button onclick="openPersonalPasswordModal()" class="w-full flex items-center justify-center gap-2 bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 py-2.5 rounded-lg font-bold transition-colors mb-1"><i class="fas fa-key"></i> تغيير كلمتي المرور</button>
+                    <button onclick="handleLogout()" class="w-full flex items-center justify-center gap-2 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-600 py-2.5 rounded-lg font-bold transition-colors"><i class="fas fa-sign-out-alt"></i> تسجيل خروج</button>
+                </div>
+            </aside>
+
+            <main class="flex-1 flex flex-col h-screen overflow-hidden">
+                <header class="bg-white dark:bg-royal-darkCard shadow-sm border-b border-gray-200 dark:border-gray-800 p-4 flex justify-between items-center z-30">
+                    <div class="flex items-center gap-3">
+                        <button onclick="toggleSidebar(true)" class="md:hidden text-gray-700 dark:text-gray-300 p-1"><i class="fas fa-bars text-2xl"></i></button>
+                        <div class="hidden md:flex items-center gap-3">
+                            <img src="${state.settings.logo}" class="h-10 w-auto object-contain logo-animated hidden md:block" onerror="this.src='https://placehold.co/400x100/transparent/D4AF37?text=BETAK'">
+                            <div id="sync-indicator" class="w-2.5 h-2.5 rounded-full bg-gray-400 shadow-[0_0_5px_#9ca3af]"></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button onclick="checkReminders()" class="text-vivid-orange hover:text-vivid-orangeDark transition-colors p-2" title="التحقق من التنبيهات"><i class="fas fa-bell text-xl"></i></button>
+                        <button onclick="toggleTheme()" class="text-gray-500 hover:text-royal-gold dark:text-gray-300 transition-colors p-2"><i class="fas ${state.theme === 'dark' ? 'fa-sun text-yellow-400' : 'fa-moon'} text-xl"></i></button>
+                    </div>
+                </header>
+                <div id="main-content" class="flex-1 overflow-y-auto p-4 md:p-8 animate-fade-in relative"></div>
+            </main>
+            <div id="modals-container"></div>
+            `;
+        }
+
+        function renderView() {
+            saveFocus(); 
+            const mainContent = document.getElementById('main-content');
+            document.querySelectorAll('.menu-item').forEach(el => {
+                el.classList.remove('bg-royal-gold', 'text-white', 'shadow-lg');
+                if(el.id !== 'nav-trash') el.classList.add('text-gray-600', 'dark:text-gray-300', 'hover:bg-royal-goldLight/20', 'dark:hover:bg-gray-800');
+            });
+            const activeLink = document.getElementById(`nav-${state.currentView === 'construction' ? 'construction' : state.currentView}`);
+            if(activeLink && activeLink.id !== 'nav-trash') {
+                activeLink.classList.remove('text-gray-600', 'dark:text-gray-300', 'hover:bg-royal-goldLight/20', 'dark:hover:bg-gray-800');
+                activeLink.classList.add('bg-royal-gold', 'text-white', 'shadow-lg');
+            } else if (activeLink && activeLink.id === 'nav-trash') {
+                activeLink.classList.remove('text-red-500', 'hover:bg-red-50');
+                activeLink.classList.add('bg-red-600', 'text-white', 'shadow-lg');
+            }
+
+            switch(state.currentView) {
+                case 'dashboard': mainContent.innerHTML = getDashboardHTML(); break;
+                case 'leads': mainContent.innerHTML = getLeadsHTML(); break;
+                case 'clients': mainContent.innerHTML = getClientsHTML(); break;
+                case 'properties': mainContent.innerHTML = getProjectsHTML(); break;
+                case 'construction': mainContent.innerHTML = getConstructionHTML(); break;
+                case 'archive': mainContent.innerHTML = getArchiveHTML(); break;
+                case 'reports': if(!checkPerm('canViewReports')) changeView('dashboard'); else mainContent.innerHTML = getReportsHTML(); break;
+                case 'users': if(!checkPerm('canManageUsers')) changeView('dashboard'); else mainContent.innerHTML = getUsersHTML(); break;
+                case 'targets': if(!checkPerm('canManageTargets')) changeView('dashboard'); else mainContent.innerHTML = getTargetsHTML(); break;
+                case 'trash': if(state.currentUser.role !== 'admin') changeView('dashboard'); else mainContent.innerHTML = getTrashHTML(); break;
+            }
+            restoreFocus(); 
+        }
+
+        function getTrashHTML() {
+            let trashItems = [];
+            
+            state.clients.filter(c => c.isDeleted).forEach(c => trashItems.push({ id: c.id, type: 'client', typeName: 'عميل (CRM)', name: c.name, date: c.deletedAt || '-' }));
+            state.projects.filter(p => p.isDeleted).forEach(p => trashItems.push({ id: p.id, type: 'project', typeName: 'مشروع عقاري', name: p.name, date: p.deletedAt || '-' }));
+            state.users.filter(u => u.isDeleted).forEach(u => trashItems.push({ id: u.id, type: 'user', typeName: 'موظف/مستخدم', name: u.name, date: u.deletedAt || '-' }));
+            state.excelFiles.filter(f => f.isDeleted).forEach(f => trashItems.push({ id: f.id, type: 'excel', typeName: 'ملف إكسيل (Leads)', name: f.name, date: f.deletedAt || '-' }));
+
+            trashItems.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            const rows = trashItems.map(item => `
+                <tr class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                    <td class="py-4 px-4 font-bold dark:text-white">${item.name}</td>
+                    <td class="py-4 px-4"><span class="px-2 py-1 text-xs font-bold rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300">${item.typeName}</span></td>
+                    <td class="py-4 px-4 text-sm font-bold text-gray-500" dir="ltr">${formatDate(item.date, true)}</td>
+                    <td class="py-4 px-4 flex gap-2">
+                        <button onclick="restoreItem('${item.type}', '${item.id}')" class="bg-green-100 hover:bg-green-200 text-green-700 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors shadow-sm"><i class="fas fa-recycle mr-1"></i> استرجاع</button>
+                        <button onclick="hardDeleteItem('${item.type}', '${item.id}')" class="bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors shadow-sm"><i class="fas fa-trash-alt mr-1"></i> حذف نهائي</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            return `
+            <div class="mb-6">
+                <h2 class="text-3xl font-black text-red-600 dark:text-red-500"><i class="fas fa-trash-alt mr-2"></i> سلة المهملات المركزية</h2>
+                <p class="text-gray-500 mt-2 font-bold">يمكنك استرجاع العناصر المحذوفة لتعود لمكانها الأصلي، أو إزالتها نهائياً من النظام والسيرفر.</p>
+            </div>
+            <div class="bg-white dark:bg-royal-darkCard rounded-2xl shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-right whitespace-nowrap"><thead class="bg-gray-50 dark:bg-gray-800/50"><tr><th class="py-4 px-4 font-black">الاسم / العنوان</th><th class="py-4 px-4 font-black">النوع</th><th class="py-4 px-4 font-black">تاريخ الحذف</th><th class="py-4 px-4 font-black">إجراءات السلة</th></tr></thead><tbody>${rows || '<tr><td colspan="4" class="p-8 text-center text-gray-400 font-bold">سلة المهملات فارغة تماماً</td></tr>'}</tbody></table>
+                </div>
+            </div>`;
+        }
+
+        window.restoreItem = function(type, id) {
+            let item = null;
+            if(type === 'client') item = state.clients.find(x => x.id == id);
+            else if(type === 'project') item = state.projects.find(x => x.id == id);
+            else if(type === 'user') item = state.users.find(x => x.id == id);
+            else if(type === 'excel') item = state.excelFiles.find(x => x.id == id);
+
+            if(item) {
+                item.isDeleted = false;
+                item.deletedAt = null;
+                logActivity(state.currentUser.id, 'استرجاع من المهملات', `استرجاع (${item.name}) من سلة المهملات`);
+                showToast('تم الاسترجاع بنجاح');
+                renderView();
+            }
+        }
+
+        window.hardDeleteItem = function(type, id) {
+            showConfirmModal('سيتم حذف هذا العنصر نهائياً وللأبد من قاعدة البيانات. هل أنت متأكد؟', 'حذف نهائي', 'bg-red-700', () => {
+                let collectionName = '';
+                if(type === 'client') { state.clients = state.clients.filter(x => x.id != id); collectionName = 'Clients'; }
+                else if(type === 'project') { state.projects = state.projects.filter(x => x.id != id); collectionName = 'Projects'; }
+                else if(type === 'user') { state.users = state.users.filter(x => x.id != id); collectionName = 'Users'; }
+                else if(type === 'excel') { state.excelFiles = state.excelFiles.filter(x => x.id != id); collectionName = 'ExcelFiles'; }
+
+                if(collectionName) {
+                    db.collection(collectionName).doc(id.toString()).delete();
+                    delete lastSavedItems[collectionName + '_' + id]; 
+                }
+
+                logActivity(state.currentUser.id, 'حذف نهائي', `تم الحذف النهائي لعنصر من نوع ${type}`);
+                showToast('تم الحذف من السيرفر نهائياً');
+                renderView();
+            });
+        }
+
+        function getDashboardHTML() {
+            const isAdmin = state.currentUser.role === 'admin';
+            const isTL = state.currentUser.role === 'team_leader';
+            const allUnits = getAllUnits();
+            const activeUsers = state.users.filter(u => !u.isDeleted && u.role !== 'data_entry' && u.role !== 'admin');
+            
+            let myClients = state.clients.filter(c => !c.isDeleted && c.agentId === state.currentUser.id);
+            let myProps = allUnits.filter(p => p.agentId === state.currentUser.id || p.coAgentId === state.currentUser.id);
+            
+            if (isAdmin) {
+                myClients = state.clients.filter(c => !c.isDeleted);
+                myProps = allUnits.filter(p => p.status !== 'available');
+            } else if (isTL) {
+                const myTeamIds = state.users.filter(u => u.teamLeaderId === state.currentUser.id).map(u => u.id);
+                myTeamIds.push(state.currentUser.id);
+                myClients = state.clients.filter(c => !c.isDeleted && myTeamIds.includes(c.agentId));
+                myProps = allUnits.filter(p => myTeamIds.includes(p.agentId) || myTeamIds.includes(p.coAgentId));
+            }
+
+            const mySoldProps = myProps.filter(p => p.status === 'sold');
+            const mySales = mySoldProps.reduce((sum, p) => sum + p.price, 0);
+            
+            const activeProps = myProps.filter(p => p.status === 'negotiation' || p.status === 'reserved');
+            const activeDeals = activeProps.map(p => `
+                <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-xl mb-2 border border-gray-100 dark:border-gray-700">
+                    <div>
+                        <p class="font-bold dark:text-white text-sm">${p.title}</p>
+                        <p class="text-xs text-gray-500">${p.notes || 'لا يوجد ملاحظات'}</p>
+                    </div>
+                    <div class="text-left">
+                        <p class="font-black text-blue-600">${formatCurrency(p.price)}</p>
+                        <span class="text-[10px] font-bold px-2 py-1 rounded ${p.status==='reserved'?'bg-yellow-100 text-yellow-700':'bg-blue-100 text-blue-700'}">${p.status==='reserved'?'حجز':'تفاوض'}</span>
+                    </div>
+                </div>
+            `).join('');
+
+            let html = `
+            <div class="mb-8">
+                <h2 class="text-3xl font-black text-gray-800 dark:text-white">مرحباً، ${state.currentUser.name} 👋</h2>
+                <p class="text-gray-500 dark:text-gray-400 text-sm mt-1 font-semibold">${isAdmin ? 'نظرة عامة على أداء الشركة' : (isTL ? 'نظرة عامة على أداء فريقك' : 'نظرة سريعة على أرقامك ومبيعاتك')}</p>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div class="bg-white dark:bg-royal-darkCard p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 border-b-4 border-b-blue-500">
+                    <p class="text-gray-500 dark:text-gray-400 text-sm font-bold mb-1">${isAdmin||isTL ? 'إجمالي العملاء' : 'عملائي النشطين'}</p><h3 class="text-3xl font-black dark:text-white">${myClients.length}</h3>
+                </div>
+                <div class="bg-white dark:bg-royal-darkCard p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 border-b-4 border-b-yellow-500">
+                    <p class="text-gray-500 dark:text-gray-400 text-sm font-bold mb-1">وحدات قيد التفاوض</p><h3 class="text-3xl font-black dark:text-white">${activeProps.length}</h3>
+                </div>
+                <div class="bg-white dark:bg-royal-darkCard p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 border-b-4 border-b-green-500">
+                    <p class="text-gray-500 dark:text-gray-400 text-sm font-bold mb-1">إقفال بيع (وحدة)</p><h3 class="text-3xl font-black dark:text-white">${mySoldProps.length}</h3>
+                </div>
+                <div class="bg-white dark:bg-royal-darkCard p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 border-b-4 border-b-royal-gold">
+                    <p class="text-gray-500 dark:text-gray-400 text-sm font-bold mb-1">${isAdmin||isTL ? 'إجمالي المبيعات' : 'عمولتي المتوقعة'}</p><h3 class="text-3xl font-black dark:text-white">${isAdmin||isTL ? formatCurrency(mySales) : formatCurrency(mySales * state.settings.commissionRate)}</h3>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-royal-darkCard rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-5 mb-8">
+                <h4 class="font-bold text-lg dark:text-white mb-4"><i class="fas fa-handshake text-royal-gold"></i> الصفقات الجارية والوحدات تحت المتابعة</h4>
+                ${activeDeals || '<p class="text-gray-500 text-sm font-bold">لا يوجد صفقات قيد التفاوض حالياً.</p>'}
+            </div>
+            `;
+
+            if (isAdmin || isTL) {
+                let teamUsers = activeUsers;
+                if(isTL) {
+                    teamUsers = activeUsers.filter(u => u.teamLeaderId === state.currentUser.id || u.id === state.currentUser.id);
+                }
+
+                const empStats = teamUsers.map(u => {
+                    const uClients = state.clients.filter(c => !c.isDeleted && c.agentId === u.id).length;
+                    const uSoldProps = allUnits.filter(p => p.status === 'sold' && (p.agentId === u.id || p.coAgentId === u.id));
+                    const uSalesVol = uSoldProps.reduce((sum, p) => sum + p.price, 0);
+                    return { ...u, clients: uClients, deals: uSoldProps.length, vol: uSalesVol };
+                }).sort((a, b) => b.vol - a.vol);
+
+                const leaderboardRows = empStats.map((u, i) => `
+                    <tr class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                        <td class="py-3 px-4 font-bold dark:text-white flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 text-xs flex items-center justify-center">${i+1}</span>
+                            ${u.name} <span class="text-xs text-gray-400">(${u.role === 'team_leader' ? 'ليدر' : 'مبيعات'})</span>
+                        </td>
+                        <td class="py-3 px-4 text-center font-bold text-blue-600">${u.clients}</td>
+                        <td class="py-3 px-4 text-center font-bold text-green-600">${u.deals}</td>
+                        <td class="py-3 px-4 font-black dark:text-gray-200">${formatCurrency(u.vol)}</td>
+                    </tr>
+                `).join('');
+
+                html += `
+                <div class="bg-white dark:bg-royal-darkCard rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-5">
+                    <h4 class="font-bold text-lg dark:text-white mb-4"><i class="fas fa-trophy text-yellow-500"></i> ترتيب الموظفين (Leaderboard)</h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right whitespace-nowrap">
+                            <thead class="bg-gray-50 dark:bg-gray-800/50">
+                                <tr>
+                                    <th class="py-3 px-4 font-black">الموظف</th>
+                                    <th class="py-3 px-4 font-black text-center">العملاء النشطين</th>
+                                    <th class="py-3 px-4 font-black text-center">صفقات مباعة</th>
+                                    <th class="py-3 px-4 font-black">حجم المبيعات</th>
+                                </tr>
+                            </thead>
+                            <tbody>${leaderboardRows || '<tr><td colspan="4" class="text-center py-4 text-gray-500 font-bold">لا يوجد موظفين لعرضهم</td></tr>'}</tbody>
+                        </table>
+                    </div>
+                </div>
+                `;
+            }
+
+            return html;
+        }
+
+        function getLeadsHTML() {
+            const isAdmin = ['admin'].includes(state.currentUser.role);
+            
+            // فلترة الملفات المتاحة بناءً على الصلاحيات
+            let availableFiles = state.excelFiles.filter(f => !f.isDeleted);
+            if (!isAdmin) {
+                // الموظف العادي والتيم ليدر يرى ملفاته فقط
+                availableFiles = availableFiles.filter(f => f.uploadedBy === state.currentUser.id);
+            }
+
+            // ضبط الملف النشط إذا كان غير موجود في القائمة المفلترة
+            if (!availableFiles.find(f => f.id === state.activeFileId)) {
+                state.activeFileId = availableFiles.length > 0 ? availableFiles[0].id : null;
+            }
+
+            const activeFile = availableFiles.find(f => f.id === state.activeFileId);
+            let leadsToDisplay = activeFile ? activeFile.leads : [];
+            
+            // إنشاء خيارات القائمة المنسدلة مع إضافة اسم الرافع للمدير
+            const fileOptions = availableFiles.map(f => {
+                const uploader = state.users.find(u => u.id === f.uploadedBy);
+                const uploaderName = uploader ? uploader.name : 'مدير النظام';
+                const extraText = isAdmin ? ` (بواسطة: ${uploaderName})` : '';
+                return `<option value="${f.id}" ${f.id === state.activeFileId ? 'selected' : ''}>${f.name} ${extraText} - ${f.leads.length} عميل</option>`;
+            }).join('');
+
+            const leadsRows = leadsToDisplay.filter(l => l.status !== 'converted').map(l => `
+                <tr class="border-b border-gray-100 dark:border-gray-800 ${l.status==='rejected'?'opacity-50':''} hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                    <td class="py-3 px-4 font-bold dark:text-white">${l.name}</td>
+                    <td class="py-3 px-4 text-gray-600 dark:text-gray-300" dir="ltr">${l.phone}</td>
+                    <td class="py-3 px-4 text-sm font-semibold text-gray-500 dark:text-gray-400 truncate max-w-[150px]">${l.notes || '-'}</td>
+                    <td class="py-3 px-4 flex gap-2">
+                        ${l.status !== 'rejected' ? `
+                            <button onclick="updateLeadStatus(${l.id}, 'follow-up')" class="bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg text-xs font-bold" title="متابعة"><i class="fas fa-clock"></i></button>
+                            <button onclick="updateLeadStatus(${l.id}, 'rejected')" class="bg-gray-200 text-gray-600 px-3 py-1.5 rounded-lg text-xs font-bold" title="مرفوض"><i class="fas fa-times"></i></button>
+                            <button onclick="openConvertLeadModal(${l.id})" class="bg-green-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-lg transform hover:scale-105"><i class="fas fa-bolt mr-1"></i> نقل للعملاء</button>
+                        ` : `<span class="text-xs font-bold text-gray-400 border px-2 py-1 rounded">مرفوض</span><button onclick="updateLeadStatus(${l.id}, 'new')" class="text-royal-gold text-xs hover:underline mr-2">استرجاع</button>`}
+                    </td>
+                </tr>
+            `).join('');
+
+            return `
+            <div class="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
+                <div><h2 class="text-3xl font-black dark:text-white">إدارة ملفات العملاء (Leads)</h2></div>
+                ${checkPerm('canUploadExcel') ? `
+                <div class="flex gap-2">
+                    <label class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl font-bold shadow-lg cursor-pointer flex items-center gap-2">
+                        <i class="fas fa-file-excel"></i> رفع شيت إكسيل جديد
+                        <input type="file" id="excel-upload" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleExcelUploadWorker(event)">
+                    </label>
+                </div>` : ''}
+            </div>
+
+            <div class="bg-white dark:bg-royal-darkCard p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 mb-6 flex flex-col md:flex-row gap-4 items-end md:items-center justify-between">
+                <div class="w-full md:w-1/2">
+                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">الملف المعروض حالياً:</label>
+                    <select id="active-file-select" class="royal-input text-sm font-bold" onchange="changeActiveFile(this.value)">
+                        ${fileOptions || '<option value="">لا يوجد ملفات مرفوعة</option>'}
+                    </select>
+                </div>
+                ${activeFile && checkPerm('canUploadExcel') ? `
+                <button onclick="deleteExcelFile('${activeFile.id}')" class="text-red-600 bg-red-50 hover:bg-red-100 px-4 py-2 rounded-lg font-bold text-sm transition-colors">
+                    <i class="fas fa-trash-alt mr-1"></i> حذف هذا الملف
+                </button>
+                ` : ''}
+            </div>
+
+            <div class="bg-white dark:bg-royal-darkCard rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-right whitespace-nowrap"><thead class="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700"><tr><th class="py-4 px-4 font-black">الاسم</th><th class="py-4 px-4 font-black">رقم الهاتف</th><th class="py-4 px-4 font-black">ملاحظات وحالة</th><th class="py-4 px-4 font-black">إجراء</th></tr></thead><tbody>${leadsRows || '<tr><td colspan="4" class="p-8 text-center text-gray-400 font-bold">لا يوجد عملاء لعرضهم أو لم يتم اختيار ملف</td></tr>'}</tbody></table>
+                </div>
+            </div>`;
+        }
+
+        window.changeActiveFile = function(fileId) { state.activeFileId = fileId; renderView(); }
+        window.deleteExcelFile = function(fileId) { showConfirmModal('هل أنت متأكد من حذف هذا الملف وكل العملاء بداخله؟', 'احذف الملف', 'bg-red-600', () => { state.excelFiles = state.excelFiles.filter(f => f.id !== fileId); state.activeFileId = state.excelFiles.length > 0 ? state.excelFiles[0].id : null; showToast('تم الحذف بنجاح'); renderView(); }); }
+
+        window.updateLeadStatus = function(leadId, status) {
+            const activeFile = state.excelFiles.find(f => f.id === state.activeFileId);
+            if(activeFile) {
+                const lead = activeFile.leads.find(l => l.id === leadId);
+                if(lead) {
+                    lead.status = status;
+                    if(status === 'follow-up') showPromptModal('ملاحظة المتابعة:', lead.notes, (val) => { lead.notes = val; renderView(); });
+                    else renderView();
+                }
+            }
+        }
+
+        window.openConvertLeadModal = function(leadId) {
+            const activeFile = state.excelFiles.find(f => f.id === state.activeFileId);
+            if(!activeFile) return;
+            const lead = activeFile.leads.find(l => l.id === leadId);
+            if(!lead) return;
+
+            const isAdminOrTL = ['admin', 'team_leader'].includes(state.currentUser.role);
+            let agentsOptions = '';
+            if(isAdminOrTL) {
+                const agents = state.currentUser.role === 'admin' ? state.users : state.users.filter(u => u.teamLeaderId === state.currentUser.id || u.id === state.currentUser.id);
+                agentsOptions = agents.filter(u => u.role !== 'data_entry' && !u.isDeleted).map(u => `<option value="${u.id}" ${u.id === state.currentUser.id ? 'selected' : ''}>${u.name}</option>`).join('');
+            }
+
+            openModal(`
+                <div class="p-6 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 flex justify-between rounded-t-2xl">
+                    <h3 class="font-black text-xl dark:text-white"><i class="fas fa-bolt text-green-500"></i> تأهيل عميل (Lead Conversion)</h3>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
+                </div>
+                <form onsubmit="confirmConvertLead(event, ${leadId})" class="p-6 bg-white dark:bg-royal-darkCard rounded-b-2xl space-y-4">
+                    <div class="bg-blue-50 dark:bg-blue-900/30 p-3 rounded-lg mb-4 text-center">
+                        <p class="font-bold text-blue-800 dark:text-blue-300 text-lg">${lead.name}</p>
+                        <p class="text-blue-600 dark:text-blue-400" dir="ltr">${lead.phone}</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold mb-1 dark:text-gray-300">نوع العقار المهتم به *</label>
+                            <select id="cv-type" class="royal-input" required><option value="سكني">سكني</option><option value="تجاري">تجاري</option><option value="إداري">إداري</option><option value="ساحلي">ساحلي</option></select>
+                        </div>
+                        <div><label class="block text-sm font-bold mb-1 dark:text-gray-300">الميزانية المتوقعة *</label><input type="number" id="cv-budget" class="royal-input" placeholder="0" required></div>
+                        <div>
+                            <label class="block text-sm font-bold mb-1 dark:text-gray-300">مصدر العميل *</label>
+                            <select id="cv-source" class="royal-input" required><option value="أورجانيك">أورجانيك (Organic)</option><option value="كامبين">كامبين (Campaign)</option></select>
+                        </div>
+                        <div><label class="block text-sm font-bold mb-1 dark:text-gray-300">تاريخ المتابعة القادم *</label><input type="date" id="cv-date" class="royal-input" required></div>
+                        ${isAdminOrTL ? `<div class="col-span-2"><label class="block text-sm font-bold mb-1 dark:text-gray-300">إسناد العميل للموظف (سيظهر في قائمة عملائه)</label><select id="cv-agent" class="royal-input">${agentsOptions}</select></div>` : ''}
+                    </div>
+                    <button type="submit" class="w-full mt-4 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl shadow-lg transition-transform hover:-translate-y-1">تأكيد ونقل للـ CRM</button>
+                </form>
+            `);
+        }
+
+        window.confirmConvertLead = function(e, leadId) {
+            e.preventDefault();
+            const activeFile = state.excelFiles.find(f => f.id === state.activeFileId);
+            const lead = activeFile.leads.find(l => l.id === leadId);
+            
+            const isAdminOrTL = ['admin', 'team_leader'].includes(state.currentUser.role);
+            const targetAgentId = isAdminOrTL && document.getElementById('cv-agent') ? parseInt(document.getElementById('cv-agent').value) : state.currentUser.id;
+
+            lead.status = 'converted';
+            state.clients.unshift({
+                id: Date.now(), name: lead.name, phone: lead.phone, email: '', address: '', 
+                propertyType: document.getElementById('cv-type').value, budget: parseInt(document.getElementById('cv-budget').value) || 0, 
+                interests: lead.notes || 'تأهيل من الإكسيل', agentId: targetAgentId, 
+                source: `إكسيل: ${activeFile.name}`, sourceType: document.getElementById('cv-source').value, 
+                followUpDate: document.getElementById('cv-date').value, isDeleted: false, 
+                history: [{date: new Date().toISOString().split('T')[0], note: 'تم تأهيل العميل ونقله من الإكسيل.'}]
+            });
+            
+            const assignedUser = state.users.find(u => u.id === targetAgentId);
+            const assignText = assignedUser ? ` وتم إسناده للموظف (${assignedUser.name})` : '';
+            
+            logActivity(state.currentUser.id, 'تأهيل عميل', `تأهيل العميل (${lead.name}) للـ CRM${assignText}.`);
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            showToast('تم النقل بنجاح وإضافة العميل لقائمة العملاء!');
+            closeModal(); renderView();
+        }
+
+        function handleExcelUploadWorker(e) {
+            const file = e.target.files[0];
+            if(!file) return;
+            showLoader("جاري قراءة الشيت لاستخراج البيانات...");
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const workerCode = `
+                    importScripts('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');
+                    self.onmessage = function(e) {
+                        try {
+                            const workbook = XLSX.read(e.data, { type: 'binary' });
+                            const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 });
+                            self.postMessage({ success: true, data: json });
+                        } catch (err) { self.postMessage({ success: false, error: err.message }); }
+                    };
+                `;
+                const blob = new Blob([workerCode], { type: 'application/javascript' });
+                const workerUrl = URL.createObjectURL(blob);
+                const worker = new Worker(workerUrl);
+                
+                worker.onmessage = function(msg) {
+                    if(msg.data.success) {
+                        let extractedLeads = [];
+                        for(let i=1; i<msg.data.data.length; i++) {
+                            const row = msg.data.data[i];
+                            if(row[0] && row[1]) extractedLeads.push({ id: Date.now() + i, name: row[0], phone: String(row[1]), status: 'new', agentId: state.currentUser.id, notes: row[2] || '' });
+                        }
+                        // ربط الملف المرفوع بالـ ID الخاص بالموظف الذي رفعه
+                        const newFile = { id: 'f' + Date.now(), name: file.name, date: new Date().toISOString().split('T')[0], leads: extractedLeads, isDeleted: false, uploadedBy: state.currentUser.id };
+                        state.excelFiles.unshift(newFile); state.activeFileId = newFile.id;
+                        logActivity(state.currentUser.id, 'رفع إكسيل', `تم رفع ملف (${file.name}) يحتوي على ${extractedLeads.length} عميل.`);
+                        hideLoader(); showToast(`تم استيراد ${extractedLeads.length} عميل بنجاح`); if(state.currentView==='leads') renderView();
+                    } else { hideLoader(); showToast('خطأ في الملف المرفوع', 'error'); }
+                    worker.terminate(); URL.revokeObjectURL(workerUrl);
+                };
+                worker.postMessage(evt.target.result);
+            };
+            reader.readAsBinaryString(file); e.target.value = '';
+        }
+
+        function getClientsHTML() {
+            const isAdmin = ['admin'].includes(state.currentUser.role);
+            const isTL = state.currentUser.role === 'team_leader';
+            let filteredClients = state.clients;
+
+            if(isTL) {
+                const myTeamIds = state.users.filter(u => u.teamLeaderId === state.currentUser.id).map(u => u.id);
+                myTeamIds.push(state.currentUser.id);
+                filteredClients = filteredClients.filter(c => myTeamIds.includes(c.agentId));
+            } else if (!isAdmin) {
+                filteredClients = filteredClients.filter(c => c.agentId === state.currentUser.id);
+            }
+
+            if(state.filters.clientSearch) {
+                const term = state.filters.clientSearch.toLowerCase();
+                filteredClients = filteredClients.filter(c => {
+                    const agentName = state.users.find(u => u.id === c.agentId)?.name || '';
+                    return c.name.toLowerCase().includes(term) || c.phone.includes(term) || c.interests.toLowerCase().includes(term) || agentName.toLowerCase().includes(term);
+                });
+            }
+            if(state.filters.clientDateFrom) filteredClients = filteredClients.filter(c => c.followUpDate >= state.filters.clientDateFrom);
+            if(state.filters.clientDateTo) filteredClients = filteredClients.filter(c => c.followUpDate <= state.filters.clientDateTo);
+
+            const rows = filteredClients.filter(c => !c.isDeleted).map(c => {
+                const today = new Date().toISOString().split('T')[0];
+                const needsCall = c.followUpDate === today ? 'animate-pulse text-red-500' : '';
+                
+                return `
+                <tr class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                    <td class="py-4 px-4 cursor-pointer" onclick="openClientProfile(${c.id})">
+                        <div class="font-bold dark:text-white text-blue-600 hover:underline">${c.name}</div>
+                        <div class="text-xs text-gray-500 mt-1">${c.sourceType} - ${c.source}</div>
+                    </td>
+                    <td class="py-4 px-4 text-gray-600 dark:text-gray-300" dir="ltr"><i class="fas fa-phone-alt text-xs mr-1 text-gray-400"></i>${c.phone}</td>
+                    <td class="py-4 px-4 text-sm font-bold dark:text-gray-400">${c.propertyType} - ${c.interests}</td>
+                    <td class="py-4 px-4 font-black text-green-600 dark:text-green-400">${formatCurrency(c.budget)}</td>
+                    <td class="py-4 px-4 text-sm font-bold text-gray-500 ${needsCall}">${formatDate(c.followUpDate)}</td>
+                    ${isAdmin || isTL ? `<td class="py-4 px-4 text-sm font-bold text-royal-gold">${state.users.find(u=>u.id===c.agentId)?.name || '-'}</td>` : ''}
+                    <td class="py-4 px-4 flex gap-2">
+                        <button onclick="openWhatsAppModal(${c.id})" class="bg-green-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors shadow hover:scale-105" title="مراسلة وعرض وحدات"><i class="fab fa-whatsapp"></i></button>
+                        <button onclick="openEditClientModal(${c.id})" class="text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"><i class="fas fa-edit"></i></button>
+                        <button onclick="deleteClient(${c.id})" class="text-red-600 bg-red-50 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>`;
+            }).join('');
+            
+            return `
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                <h2 class="text-3xl font-black dark:text-white">العملاء الأساسيين (CRM)</h2>
+                <div class="flex gap-2 w-full md:w-auto">
+                    <button onclick="openAddClientModal()" class="flex-1 md:w-auto bg-vivid-orange hover:bg-vivid-orangeDark text-white px-5 py-2.5 rounded-xl font-bold shadow-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-user-plus"></i> إضافة عميل جديد</button>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-royal-darkCard p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">بحث شامل (الاسم، الموظف، الاهتمام)</label>
+                    <input type="text" id="fc-search" class="royal-input text-sm" placeholder="ابحث هنا..." value="${state.filters.clientSearch}" oninput="updateClientFilters()">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">موعد المتابعة (من)</label>
+                    <input type="date" id="fc-from" class="royal-input text-sm" value="${state.filters.clientDateFrom}" onchange="updateClientFilters()">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">موعد المتابعة (إلى)</label>
+                    <input type="date" id="fc-to" class="royal-input text-sm" value="${state.filters.clientDateTo}" onchange="updateClientFilters()">
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-royal-darkCard rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-x-auto">
+                <table class="w-full text-right whitespace-nowrap">
+                    <thead class="bg-gray-50 dark:bg-gray-800/50"><tr><th class="py-4 px-4 font-black">الاسم</th><th class="py-4 px-4 font-black">الهاتف</th><th class="py-4 px-4 font-black">الاهتمام</th><th class="py-4 px-4 font-black">الميزانية</th><th class="py-4 px-4 font-black">المتابعة</th>${isAdmin || isTL ? '<th class="py-4 px-4 font-black">المسؤول</th>' : ''}<th class="py-4 px-4 font-black">إجراءات</th></tr></thead>
+                    <tbody>${rows || '<tr><td colspan="7" class="p-8 text-center text-gray-400">لا يوجد بيانات مطابقة للبحث</td></tr>'}</tbody>
+                </table>
+            </div>`;
+        }
+
+        window.updateClientFilters = function() {
+            state.filters.clientSearch = document.getElementById('fc-search').value;
+            state.filters.clientDateFrom = document.getElementById('fc-from').value;
+            state.filters.clientDateTo = document.getElementById('fc-to').value;
+            renderView();
+        }
+
+        window.deleteClient = function(id) { 
+            showConfirmModal('سيتم نقل هذا العميل لـ "سلة المهملات". يمكنك استرجاعه لاحقاً.', 'نقل للمهملات', 'bg-red-600 hover:bg-red-700', () => { 
+                const c = state.clients.find(x => x.id === id); 
+                if(c) { 
+                    c.isDeleted = true; 
+                    c.deletedAt = getExactDateTime(); 
+                    logActivity(state.currentUser.id, 'نقل لمهملات', `تم نقل العميل (${c.name}) إلى سلة المهملات.`); 
+                    showToast('تم النقل بنجاح'); renderView(); 
+                }
+            }); 
+        }
+
+        window.openAddClientModal = function() {
+            const isAdmin = ['admin', 'team_leader'].includes(state.currentUser.role);
+            let agentsOptions = '';
+            if(isAdmin) {
+                const agents = state.currentUser.role === 'admin' ? state.users : state.users.filter(u => u.teamLeaderId === state.currentUser.id || u.id === state.currentUser.id);
+                agentsOptions = agents.filter(u => u.role !== 'data_entry' && !u.isDeleted).map(u => `<option value="${u.id}" ${u.id === state.currentUser.id ? 'selected' : ''}>${u.name}</option>`).join('');
+            }
+
+            openModal(`
+                <div class="p-6 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 flex justify-between rounded-t-2xl">
+                    <h3 class="font-black text-xl dark:text-white"><i class="fas fa-user-plus text-royal-gold"></i> إضافة عميل يدوياً</h3>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
+                </div>
+                <form onsubmit="handleAddClient(event)" class="p-6 bg-white dark:bg-royal-darkCard rounded-b-2xl space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="block text-sm font-bold mb-1 dark:text-gray-300">اسم العميل *</label><input type="text" id="ac-name" class="royal-input" required></div>
+                        <div><label class="block text-sm font-bold mb-1 dark:text-gray-300">رقم الهاتف *</label><input type="text" id="ac-phone" class="royal-input" required dir="ltr"></div>
+                        <div><label class="block text-sm font-bold mb-1 dark:text-gray-300">نوع العقار</label><select id="ac-type" class="royal-input"><option>سكني</option><option>تجاري</option><option>إداري</option><option>ساحلي</option></select></div>
+                        <div><label class="block text-sm font-bold mb-1 dark:text-gray-300">الميزانية المتوقعة</label><input type="number" id="ac-budget" class="royal-input" value="0"></div>
+                        <div>
+                            <label class="block text-sm font-bold mb-1 dark:text-gray-300">نوع المصدر (Source Type)</label>
+                            <select id="ac-stype" class="royal-input"><option value="أورجانيك">أورجانيك (زيارة/معارف)</option><option value="كامبين">حملة إعلانية (Campaign)</option></select>
+                        </div>
+                        <div><label class="block text-sm font-bold mb-1 dark:text-gray-300">تاريخ المتابعة القادم</label><input type="date" id="ac-date" class="royal-input"></div>
+                        <div class="col-span-2"><label class="block text-sm font-bold mb-1 dark:text-gray-300">الاهتمامات والتفاصيل</label><input type="text" id="ac-interests" class="royal-input" placeholder="مثال: شقة 3 غرف"></div>
+                        ${isAdmin ? `<div class="col-span-2"><label class="block text-sm font-bold mb-1 dark:text-gray-300">إسناد للموظف</label><select id="ac-agent" class="royal-input">${agentsOptions}</select></div>` : ''}
+                    </div>
+                    <button type="submit" class="w-full bg-vivid-orange text-white font-bold py-3 rounded-xl hover:bg-vivid-orangeDark shadow-lg transition-transform hover:-translate-y-1">حفظ العميل</button>
+                </form>
+            `);
+        }
+
+        window.handleAddClient = function(e) {
+            e.preventDefault();
+            const isAdmin = ['admin', 'team_leader'].includes(state.currentUser.role);
+            const agentId = isAdmin && document.getElementById('ac-agent') ? parseInt(document.getElementById('ac-agent').value) : state.currentUser.id;
+            const newClient = {
+                id: Date.now(), name: document.getElementById('ac-name').value, phone: document.getElementById('ac-phone').value,
+                email: '', address: '', propertyType: document.getElementById('ac-type').value, budget: parseInt(document.getElementById('ac-budget').value) || 0,
+                interests: document.getElementById('ac-interests').value, agentId: agentId, source: 'إضافة يدوية', sourceType: document.getElementById('ac-stype').value,
+                followUpDate: document.getElementById('ac-date').value, isDeleted: false, history: [{date: new Date().toISOString().split('T')[0], note: 'تم إضافة العميل للنظام يدوياً.'}]
+            };
+            state.clients.unshift(newClient); logActivity(state.currentUser.id, 'إضافة عميل', `إضافة عميل جديد: ${newClient.name}`);
+            closeModal(); showToast('تم حفظ العميل بنجاح'); renderView();
+        }
+
+        window.openEditClientModal = function(id) {
+            const c = state.clients.find(x => x.id === id);
+            const isAdmin = ['admin', 'team_leader'].includes(state.currentUser.role);
+            let agentsOptions = '';
+            if(isAdmin) {
+                const agents = state.currentUser.role === 'admin' ? state.users : state.users.filter(u => u.teamLeaderId === state.currentUser.id || u.id === state.currentUser.id);
+                agentsOptions = agents.filter(u => u.role !== 'data_entry' && !u.isDeleted).map(u => `<option value="${u.id}" ${u.id === c.agentId ? 'selected' : ''}>${u.name}</option>`).join('');
+            }
+            openModal(`
+                <div class="p-6 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 flex justify-between rounded-t-2xl">
+                    <h3 class="font-black text-xl dark:text-white"><i class="fas fa-edit text-blue-500"></i> تعديل بيانات العميل</h3>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
+                </div>
+                <form onsubmit="handleEditClient(event, ${id})" class="p-6 bg-white dark:bg-royal-darkCard rounded-b-2xl space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="block text-sm font-bold mb-1 dark:text-gray-300">اسم العميل *</label><input type="text" id="ec-name" class="royal-input" required value="${c.name}"></div>
+                        <div><label class="block text-sm font-bold mb-1 dark:text-gray-300">رقم الهاتف *</label><input type="text" id="ec-phone" class="royal-input" required dir="ltr" value="${c.phone}"></div>
+                        <div><label class="block text-sm font-bold mb-1 dark:text-gray-300">الميزانية</label><input type="number" id="ec-budget" class="royal-input" value="${c.budget}"></div>
+                        <div><label class="block text-sm font-bold mb-1 dark:text-gray-300">نوع المصدر</label><select id="ec-stype" class="royal-input"><option value="أورجانيك" ${c.sourceType==='أورجانيك'?'selected':''}>أورجانيك</option><option value="كامبين" ${c.sourceType==='كامبين'?'selected':''}>كامبين</option></select></div>
+                        <div><label class="block text-sm font-bold mb-1 dark:text-gray-300">تاريخ المتابعة</label><input type="date" id="ec-date" class="royal-input" value="${c.followUpDate}"></div>
+                        <div class="col-span-2"><label class="block text-sm font-bold mb-1 dark:text-gray-300">الاهتمامات</label><input type="text" id="ec-interests" class="royal-input" value="${c.interests}"></div>
+                        ${isAdmin ? `<div class="col-span-2"><label class="block text-sm font-bold mb-1 dark:text-gray-300">تغيير الموظف المسؤول</label><select id="ec-agent" class="royal-input">${agentsOptions}</select></div>` : ''}
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 shadow-lg">حفظ التعديلات</button>
+                </form>
+            `);
+        }
+
+        window.handleEditClient = function(e, id) {
+            e.preventDefault();
+            const c = state.clients.find(x => x.id === id);
+            c.name = document.getElementById('ec-name').value; c.phone = document.getElementById('ec-phone').value;
+            c.budget = parseInt(document.getElementById('ec-budget').value) || 0; c.followUpDate = document.getElementById('ec-date').value;
+            c.sourceType = document.getElementById('ec-stype').value; c.interests = document.getElementById('ec-interests').value;
+            if(document.getElementById('ec-agent')) c.agentId = parseInt(document.getElementById('ec-agent').value);
+            logActivity(state.currentUser.id, 'تعديل عميل', `تم تعديل بيانات العميل: ${c.name}`); closeModal(); showToast('تم التعديل بنجاح'); renderView();
+        }
+
+        window.openClientProfile = function(id) {
+            const c = state.clients.find(x => x.id === id);
+            const allUnits = getAllUnits();
+            const linkedUnits = allUnits.filter(u => u.clientId === id);
+            
+            let linkedUnitsHTML = '';
+            if(linkedUnits.length > 0) {
+                linkedUnitsHTML = linkedUnits.map(u => {
+                    const stTxt = { 'available':'متاح', 'negotiation':'تفاوض', 'reserved':'حجز', 'sold':'مباع' }[u.status];
+                    const color = { 'available':'text-green-500', 'negotiation':'text-blue-500', 'reserved':'text-yellow-500', 'sold':'text-red-500' }[u.status];
+                    return `
+                    <div class="p-3 bg-white dark:bg-royal-darkBg border border-gray-100 dark:border-gray-700 rounded-xl mb-3 shadow-sm">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="font-bold dark:text-white text-md">${u.title}</p>
+                            <span class="text-xs font-bold px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 ${color}">${stTxt}</span>
+                        </div>
+                        <p class="text-sm font-bold text-gray-500 mb-2">السعر: ${formatCurrency(u.price)}</p>
+                        <p class="text-sm text-gray-700 dark:text-gray-300 bg-blue-50 dark:bg-blue-900/20 p-2 rounded"><strong>ملاحظات التفاوض:</strong> ${u.notes || 'لا يوجد ملاحظات'}</p>
+                    </div>`;
+                }).join('');
+            } else {
+                linkedUnitsHTML = '<p class="text-sm text-gray-400 p-4 text-center border-dashed border-2 border-gray-200 dark:border-gray-700 rounded-xl">لا يوجد وحدات مرتبطة بهذا العميل</p>';
+            }
+
+            openModal(`
+                <div class="p-6 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 flex justify-between rounded-t-2xl">
+                    <h3 class="font-black text-xl dark:text-white"><i class="fas fa-id-card text-royal-gold"></i> الملف الشامل للعميل</h3>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
+                </div>
+                <div class="p-6 bg-white dark:bg-royal-darkCard rounded-b-2xl">
+                    <div class="flex justify-between items-start mb-6 border-b border-gray-100 dark:border-gray-700 pb-4">
+                        <div>
+                            <h2 class="text-2xl font-black dark:text-white mb-1">${c.name}</h2>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm font-bold">المصدر: <span class="text-royal-gold">${c.sourceType} - ${c.source}</span></p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="openWhatsAppModal(${c.id})" class="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 p-3 rounded-full hover:scale-110 transition-transform"><i class="fab fa-whatsapp text-xl"></i></button>
+                            <a href="tel:${c.phone}" class="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 p-3 rounded-full hover:scale-110 transition-transform"><i class="fas fa-phone-alt text-xl"></i></a>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-xl">
+                            <span class="text-xs text-gray-500 block mb-1">الاهتمام والميزانية</span>
+                            <span class="font-bold dark:text-white text-sm">${c.propertyType} - ${c.interests}</span>
+                            <span class="font-black text-green-600 block mt-1">${formatCurrency(c.budget)}</span>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-xl flex flex-col justify-center">
+                            <span class="text-xs text-gray-500 block mb-1">موعد المتابعة القادم</span>
+                            <span class="font-bold text-blue-600 text-sm">${formatDate(c.followUpDate)}</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <h4 class="font-bold dark:text-white mb-3 flex items-center gap-2"><i class="fas fa-building text-gray-400"></i> تفاصيل الوحدات المرتبطة والمفاوضات</h4>
+                        <div class="bg-gray-50 dark:bg-gray-900 p-3 rounded-xl border border-gray-100 dark:border-gray-700 max-h-64 overflow-y-auto">
+                            ${linkedUnitsHTML}
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <h4 class="font-bold dark:text-white mb-3 flex items-center gap-2"><i class="fas fa-history text-gray-400"></i> سجل المتابعات والنشاطات</h4>
+                        <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl h-48 overflow-y-auto border border-gray-100 dark:border-gray-700">
+                            ${c.history.slice().reverse().map(h => `
+                                <div class="mb-3 border-r-2 border-royal-gold pl-3">
+                                    <span class="text-xs text-gray-400" dir="ltr">${h.date}</span>
+                                    <p class="text-sm font-bold dark:text-gray-300 leading-relaxed">${h.note}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `);
+        }
+
+        window.openWhatsAppModal = function(clientId) {
+            const client = state.clients.find(c => c.id === clientId);
+            
+            let projOptions = '<option value="">-- اختر المشروع --</option>';
+            (state.projects || []).filter(p=>!p.isDeleted).forEach(p => { projOptions += `<option value="${p.id}">${p.name}</option>`; });
+
+            openModal(`
+                <div class="p-6 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 flex justify-between rounded-t-2xl">
+                    <h3 class="font-black text-xl dark:text-white"><i class="fab fa-whatsapp text-green-500 text-2xl ml-2"></i>مراسلة العميل وعرض وحدة</h3>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
+                </div>
+                <div class="p-6 bg-white dark:bg-royal-darkCard rounded-b-2xl space-y-4">
+                    <div class="bg-green-50 dark:bg-green-900/20 p-3 rounded-xl text-center mb-4">
+                        <p class="font-bold text-green-800 dark:text-green-400 text-lg">إرسال لـ: ${client.name}</p>
+                        <p class="text-sm text-green-600 dark:text-green-500" dir="ltr">${client.phone}</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-bold mb-2 dark:text-gray-300">1. اختر المشروع</label>
+                        <select id="wa-proj" class="royal-input" onchange="loadWaFloors(this.value)">${projOptions}</select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold mb-2 dark:text-gray-300">2. اختر الدور</label>
+                        <select id="wa-floor" class="royal-input" onchange="loadWaUnits(this.value)" disabled><option value="">-- اختر المشروع أولاً --</option></select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold mb-2 dark:text-gray-300">3. اختر الوحدة لإرسالها</label>
+                        <select id="wa-unit" class="royal-input" disabled><option value="">-- اختر الدور أولاً --</option></select>
+                    </div>
+
+                    <button onclick="sendWhatsAppFlow(${clientId})" class="w-full mt-4 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl shadow-lg transition-transform hover:-translate-y-1"><i class="fab fa-whatsapp mr-1"></i> تأكيد وإنشاء رسالة الواتساب</button>
+                </div>
+            `);
+        }
+
+        window.loadWaFloors = function(projId) {
+            const floorSel = document.getElementById('wa-floor');
+            const unitSel = document.getElementById('wa-unit');
+            if(!projId) { floorSel.innerHTML = '<option value="">-- اختر المشروع أولاً --</option>'; floorSel.disabled=true; unitSel.innerHTML='<option value="">-- اختر الدور أولاً --</option>'; unitSel.disabled=true; return; }
+            
+            const proj = state.projects.find(p => p.id == projId);
+            let opts = '<option value="">-- اختر الدور --</option>';
+            (proj.floors || []).forEach(f => { opts += `<option value="${f.id}">${f.name}</option>`; });
+            floorSel.innerHTML = opts; floorSel.disabled = false;
+            unitSel.innerHTML = '<option value="">-- اختر الدور أولاً --</option>'; unitSel.disabled = true;
+        }
+
+        window.loadWaUnits = function(floorId) {
+            const projId = document.getElementById('wa-proj').value;
+            const unitSel = document.getElementById('wa-unit');
+            if(!floorId) { unitSel.innerHTML = '<option value="">-- اختر الدور أولاً --</option>'; unitSel.disabled = true; return; }
+            
+            const proj = state.projects.find(p => p.id == projId);
+            const floor = (proj.floors || []).find(f => f.id == floorId);
+            let opts = '<option value="">-- اختر الوحدة --</option>';
+            (floor.units || []).forEach(u => { opts += `<option value="${u.id}">${u.title} - ${formatCurrency(u.price)}</option>`; });
+            unitSel.innerHTML = opts; unitSel.disabled = false;
+        }
+
+        window.sendWhatsAppFlow = function(clientId) {
+            const client = state.clients.find(c => c.id === clientId);
+            const projId = document.getElementById('wa-proj').value;
+            const floorId = document.getElementById('wa-floor').value;
+            const unitId = document.getElementById('wa-unit').value;
+
+            if(!unitId) return showToast('يرجى تحديد الوحدة للإرسال!', 'error');
+
+            const proj = state.projects.find(p => p.id == projId);
+            const floor = (proj.floors || []).find(f => f.id == floorId);
+            const unit = (floor.units || []).find(u => u.id == unitId);
+
+            let msg = `*عرض وحدة مميزة من ${state.settings.companyName}* 🌟\n\n`;
+            msg += `🏢 *المشروع:* ${proj.name}\n📍 *الموقع:* ${proj.location}\n`;
+            msg += `🚪 *الدور:* ${floor.name}\n`;
+            msg += `🏘️ *الوحدة:* ${unit.title}\n`;
+            msg += `💰 *السعر:* ${formatCurrency(unit.price)}\n`;
+            msg += `📐 *المساحة:* ${unit.area}م²\n`;
+            if(unit.type === 'سكني') {
+                msg += `🛏️ *عدد الغرف:* ${unit.beds}\n`;
+                if(unit.baths > 0) msg += `🛁 *الحمامات:* ${unit.baths}\n`;
+            }
+            
+            const compSlug = state.settings.companyName.replace(/\s+/g, '').toLowerCase();
+            const smartLink = `https://system.${compSlug}.com/unit/${proj.id}/${floor.id}/${unit.id}`;
+            msg += `\n*🖼️ لمشاهدة جميع صور الوحدة (${(unit.images || []).length} صور) والتفاصيل، برجاء الضغط على الرابط التالي:*\n`;
+            msg += `${smartLink}\n\nنسعد بتواصلكم معنا.`;
+
+            let phone = client.phone.trim();
+            if(phone.startsWith('01')) phone = '+20' + phone.substring(1);
+
+            const whatsappUrl = `https://wa.me/${phone.replace(/[^0-9\+]/g, '')}?text=${encodeURIComponent(msg)}`;
+            
+            logActivity(state.currentUser.id, 'مراسلة عميل', `قام بإرسال تفاصيل الوحدة (${unit.title}) بمشروع (${proj.name}) للعميل (${client.name}) عبر الواتساب.`);
+            client.history.push({ date: getExactDateTime(), note: `إرسال تفاصيل وحدة (${unit.title}) عبر الواتساب.` });
+            
+            window.open(whatsappUrl, '_blank');
+            closeModal();
+            showToast('جاري فتح الواتساب...');
+        }
+
+        function getProjectsHTML() {
+            if(state.viewedProject) return renderProjectDetails(state.viewedProject);
+
+            let filtered = state.projects.filter(p => !p.isDeleted);
+            if(state.filters.projSearch) {
+                const term = state.filters.projSearch.toLowerCase();
+                filtered = filtered.filter(p => p.name.toLowerCase().includes(term) || p.location.toLowerCase().includes(term));
+            }
+            
+            const isAdmin = ['admin', 'data_entry'].includes(state.currentUser.role);
+
+            const projCards = filtered.map(proj => {
+                let totalUnits = 0;
+                let availUnits = 0;
+                (proj.floors || []).forEach(f => {
+                    totalUnits += (f.units || []).length;
+                    availUnits += (f.units || []).filter(u => u.status === 'available').length;
+                });
+
+                return `
+                <div class="prop-card bg-white dark:bg-royal-darkCard rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col cursor-pointer" onclick="state.viewedProject=${proj.id}; renderView();">
+                    <div class="h-56 relative overflow-hidden group">
+                        <img src="${(proj.images || ['https://placehold.co/800x400/1e293b/D4AF37?text=No+Image'])[0]}" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+                        ${isAdmin ? `<button onclick="event.stopPropagation(); deleteProject(${proj.id})" class="absolute top-3 left-3 bg-red-600/90 hover:bg-red-700 text-white w-8 h-8 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110 z-20" title="نقل لسلة المهملات"><i class="fas fa-trash-alt text-xs"></i></button>` : ''}
+                        <div class="absolute top-3 right-3 bg-royal-gold text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+                            ${availUnits} وحدة متاحة
+                        </div>
+                        <div class="absolute bottom-4 right-4 left-4">
+                            <h3 class="text-white font-black text-2xl truncate mb-1">${proj.name}</h3>
+                            <p class="text-gray-300 font-bold text-sm"><i class="fas fa-map-marker-alt text-royal-gold"></i> ${proj.location}</p>
+                        </div>
+                    </div>
+                    <div class="p-4 flex-1 flex flex-col bg-gray-50 dark:bg-gray-800/50">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-sm font-bold dark:text-gray-300"><i class="fas fa-layer-group text-blue-500"></i> ${(proj.floors || []).length} أدوار</span>
+                            <span class="text-sm font-bold dark:text-gray-300"><i class="fas fa-door-open text-green-500"></i> ${totalUnits} إجمالي الوحدات</span>
+                        </div>
+                        <button class="w-full mt-auto bg-white dark:bg-gray-800 text-royal-gold hover:bg-royal-gold hover:text-white py-2 rounded-xl font-bold border border-royal-gold transition-colors shadow">تصفح المشروع والوحدات</button>
+                    </div>
+                </div>`;
+            }).join('');
+
+            return `
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                <h2 class="text-3xl font-black dark:text-white">المعرض العقاري (المشروعات)</h2>
+                ${isAdmin ? `<button onclick="openAddProjectModal()" class="w-full md:w-auto bg-gradient-to-r from-royal-gold to-royal-goldDark text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:scale-105 transition-transform flex items-center justify-center gap-2"><i class="fas fa-plus-circle"></i> إضافة مشروع جديد</button>` : ''}
+            </div>
+            
+            <div class="bg-white dark:bg-royal-darkCard p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 mb-6">
+                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">بحث في أسماء المشاريع والمواقع</label>
+                <input type="text" id="fps-search" class="royal-input text-lg font-bold" placeholder="اكتب اسم المشروع أو الموقع للبحث..." value="${state.filters.projSearch}" oninput="updateProjFilters()">
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 pb-10">${projCards || '<div class="col-span-4 text-center text-gray-400 py-10 font-bold">لا يوجد مشاريع لعرضها</div>'}</div>`;
+        }
+
+        window.updateProjFilters = function() {
+            state.filters.projSearch = document.getElementById('fps-search').value;
+            renderView();
+        }
+
+        window.openAddProjectModal = function() {
+            openModal(`
+                <div class="p-6 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 rounded-t-2xl flex justify-between">
+                    <h3 class="font-black text-xl dark:text-white"><i class="fas fa-plus-circle text-royal-gold"></i> إنشاء مشروع جديد</h3>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
+                </div>
+                <form onsubmit="handleAddProject(event)" class="p-6 bg-white dark:bg-royal-darkCard rounded-b-2xl space-y-4">
+                    <div><label class="block text-sm font-bold mb-1 dark:text-gray-300">اسم المشروع *</label><input type="text" id="npr-name" class="royal-input text-lg font-bold" required placeholder="مثال: كمبوند كذا..."></div>
+                    <div><label class="block text-sm font-bold mb-1 dark:text-gray-300">موقع المشروع *</label><input type="text" id="npr-loc" class="royal-input" required></div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">صورة الواجهة الرئيسية للمشروع (يمكنك تحديد أكثر من صورة)</label>
+                        <input type="file" id="npr-imgs" multiple accept="image/*" class="royal-input text-sm file:bg-gray-200 file:border-0 file:rounded-lg file:px-4 file:py-2" required>
+                    </div>
+                    <button type="submit" class="w-full bg-royal-gold text-white font-bold py-3 rounded-xl shadow-lg mt-6">حفظ وإنشاء المشروع</button>
+                </form>
+            `);
+        }
+
+        window.handleAddProject = async function(e) {
+            e.preventDefault();
+            const fileInput = document.getElementById('npr-imgs');
+            let imagesArray = ['https://placehold.co/800x400/1e293b/D4AF37?text=No+Image'];
+            if (fileInput.files.length > 0) {
+                showLoader('جاري رفع واجهة المشروع...');
+                try { imagesArray = await readMultipleFiles(fileInput.files); } catch (err) { showToast('خطأ بالصور', 'error'); }
+                hideLoader();
+            }
+            const newProj = { id: Date.now(), name: document.getElementById('npr-name').value, location: document.getElementById('npr-loc').value, images: imagesArray, floors: [], constructionStages: [], isDeleted: false };
+            if(!state.projects) state.projects = [];
+            state.projects.push(newProj);
+            logActivity(state.currentUser.id, 'إدارة مشاريع', `تم إنشاء مشروع جديد: ${newProj.name}`);
+            closeModal(); showToast('تم إنشاء المشروع بنجاح.'); renderView();
+        }
+
+        function renderProjectDetails(projId) {
+            const proj = state.projects.find(p => p.id === projId);
+            const isAdmin = ['admin', 'data_entry'].includes(state.currentUser.role);
+            
+            let totalAvail = 0;
+            const floorsHTML = (proj.floors || []).map(floor => {
+                const availUnits = (floor.units || []).filter(u => u.status === 'available').length;
+                totalAvail += availUnits;
+                const isClosed = (floor.units || []).length > 0 && availUnits === 0;
+
+                const unitsHTML = (floor.units || []).map(u => {
+                    const isMine = u.agentId === state.currentUser.id || u.coAgentId === state.currentUser.id;
+                    const canInteract = u.status === 'available' || isAdmin || isMine;
+                    
+                    const steps = [{id:'available',lbl:'متاح',c:'bg-green-500'},{id:'negotiation',lbl:'تفاوض',c:'bg-gray-500'},{id:'reserved',lbl:'حجز',c:'bg-yellow-500'},{id:'sold',lbl:'مباع',c:'bg-red-600'}];
+                    const cIdx = steps.findIndex(s => s.id === u.status);
+                    let stepHTML = `<div class="flex justify-between items-center mt-3 relative before:absolute before:w-full before:h-1 before:bg-gray-200 dark:before:bg-gray-700 before:-z-10 before:top-2">`;
+                    steps.forEach((s, i) => {
+                        const isPast = i <= cIdx; const isCur = i === cIdx;
+                        let cls = isPast ? s.c + ' text-white' : 'bg-gray-200 text-transparent';
+                        if(isCur && s.id==='sold') cls += ' status-sold-glow scale-110';
+                        if(isCur && s.id==='reserved') cls += ' status-reserved-glow scale-110';
+                        stepHTML += `<div class="flex flex-col items-center z-10"><div class="w-5 h-5 rounded flex items-center justify-center text-[10px] ${cls}"><i class="fas fa-check"></i></div><span class="text-[10px] font-bold mt-1 text-gray-500">${s.lbl}</span></div>`;
+                    }); stepHTML += `</div>`;
+
+                    let specifics = `<span class="text-xs font-bold dark:text-gray-300"><i class="fas fa-ruler text-royal-gold"></i> ${u.area}م²</span>`;
+                    if(u.type === 'سكني') specifics += `<span class="text-xs font-bold dark:text-gray-300 ml-2"><i class="fas fa-bed text-royal-gold"></i> ${u.beds} غرف</span>`;
+
+                    return `
+                    <div class="prop-card bg-white dark:bg-royal-darkCard rounded-xl shadow border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col ${u.status==='sold'?'border-red-500':''}">
+                        <div class="h-32 relative group">
+                            <img src="${(u.images || ['https://placehold.co/800x400/1e293b/D4AF37?text=No+Image'])[0]}" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                            ${isAdmin ? `
+                            <div class="absolute top-2 right-2 flex gap-1 z-20">
+                                <button onclick="event.stopPropagation(); openEditUnitModal(${projId}, ${floor.id}, ${u.id})" class="bg-blue-600/80 hover:bg-blue-700 text-white w-7 h-7 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110" title="تعديل الوحدة"><i class="fas fa-pencil-alt text-xs"></i></button>
+                                <button onclick="event.stopPropagation(); deleteUnit(${projId}, ${floor.id}, ${u.id})" class="bg-red-600/80 hover:bg-red-700 text-white w-7 h-7 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110" title="حذف الوحدة نهائياً"><i class="fas fa-trash-alt text-xs"></i></button>
+                            </div>
+                            ` : ''}
+                            <div class="absolute bottom-2 right-2 left-2"><h4 class="text-white font-bold text-sm truncate">${u.title}</h4><p class="text-royal-goldLight font-black text-sm">${formatCurrency(u.price)}</p></div>
+                        </div>
+                        <div class="p-3 flex-1 flex flex-col">
+                            <div class="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-2 mb-2">${specifics}</div>
+                            ${stepHTML}
+                            <div class="mt-auto pt-4 flex flex-col gap-2">
+                                ${canInteract && u.status !== 'sold' ? `
+                                    <button onclick="openChangeUnitStatusModal(${projId}, ${floor.id}, ${u.id})" class="w-full bg-gray-50 hover:bg-royal-gold hover:text-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 py-1.5 rounded-lg text-sm font-bold border border-gray-200 dark:border-gray-700 transition-colors">متابعة العميل والتحديث</button>
+                                    ${u.status !== 'available' ? `
+                                    <div class="flex gap-2">
+                                        <button onclick="cancelUnitNegotiation(${projId}, ${floor.id}, ${u.id})" class="flex-1 bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400 py-1 rounded text-[10px] font-bold hover:bg-red-100 transition-colors">إلغاء التفاوض</button>
+                                        <button onclick="openHelpUnitModal(${projId}, ${floor.id}, ${u.id})" class="flex-1 bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 py-1 rounded text-[10px] font-bold hover:bg-blue-100 transition-colors">طلب مساعدة</button>
+                                    </div>
+                                    ` : ''}
+                                ` : u.status === 'sold' ? `<div class="w-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 text-center py-1.5 rounded-lg font-bold text-sm"><i class="fas fa-lock mr-1"></i> مباع</div>` : `
+                                    <div class="w-full bg-gray-100 text-gray-500 dark:bg-gray-800 text-center py-1.5 rounded-lg font-bold text-xs"><i class="fas fa-lock mr-1"></i> مع ${state.users.find(x=>x.id===u.agentId)?.name}</div>
+                                `}
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('');
+
+                return `
+                <div class="mb-4 bg-white dark:bg-royal-darkCard rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+                    <div class="p-4 bg-gray-50 dark:bg-gray-800/50 flex justify-between items-center cursor-pointer select-none" onclick="toggleAccordion(${floor.id})">
+                        <div class="flex items-center gap-3">
+                            <h3 class="font-black text-lg dark:text-white">${floor.name}</h3>
+                            ${isClosed ? `<span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">مغلق (Sold Out)</span>` : `<span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">${availUnits} متاح من ${(floor.units || []).length}</span>`}
+                        </div>
+                        <div class="flex items-center gap-4">
+                            ${isAdmin ? `
+                            <button onclick="event.stopPropagation(); deleteFloor(${projId}, ${floor.id})" class="text-red-600 hover:text-red-800 text-sm font-bold bg-red-50 hover:bg-red-100 px-3 py-1 rounded transition-colors" title="حذف الدور بجميع وحداته"><i class="fas fa-trash-alt"></i></button>
+                            <button onclick="event.stopPropagation(); openAddUnitModal(${projId}, ${floor.id})" class="text-blue-600 hover:text-blue-800 text-sm font-bold bg-blue-50 px-3 py-1 rounded"><i class="fas fa-plus"></i> إضافة وحدة</button>
+                            ` : ''}
+                            <i id="acc-icon-${floor.id}" class="fas fa-chevron-down text-gray-400 accordion-icon"></i>
+                        </div>
+                    </div>
+                    <div id="acc-content-${floor.id}" class="accordion-content p-4 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 bg-gray-50/50 dark:bg-royal-darkBg">
+                        ${unitsHTML || '<div class="col-span-full text-center text-gray-400 py-6 font-bold">لم يتم إضافة وحدات لهذا الدور بعد</div>'}
+                    </div>
+                </div>`;
+            }).join('');
+
+            return `
+            <div class="mb-6 flex gap-4 items-center">
+                <button onclick="state.viewedProject=null; renderView();" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-xl font-bold shadow transition-colors"><i class="fas fa-arrow-right ml-2"></i>عودة للمشاريع</button>
+                <h2 class="text-3xl font-black dark:text-white text-royal-gold">${proj.name}</h2>
+            </div>
+            
+            <div class="bg-white dark:bg-royal-darkCard rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-6 mb-6 flex flex-col md:flex-row gap-6 relative overflow-hidden">
+                <div class="w-full md:w-1/3 h-48 rounded-xl overflow-hidden shadow-inner"><img src="${(proj.images || [])[0] || 'https://placehold.co/800x400/1e293b/D4AF37?text=No+Image'}" class="w-full h-full object-cover"></div>
+                <div class="flex-1 flex flex-col justify-center">
+                    <p class="text-gray-500 dark:text-gray-400 font-bold mb-2"><i class="fas fa-map-marker-alt text-vivid-orange"></i> ${proj.location}</p>
+                    <div class="flex gap-6 mt-4">
+                        <div class="text-center"><span class="block text-2xl font-black dark:text-white">${(proj.floors || []).length}</span><span class="text-sm text-gray-500 font-bold">إجمالي الأدوار</span></div>
+                        <div class="text-center"><span class="block text-2xl font-black text-green-500">${totalAvail}</span><span class="text-sm text-gray-500 font-bold">إجمالي الوحدات المتاحة</span></div>
+                    </div>
+                </div>
+                <div class="flex gap-2 mt-4 md:mt-0 md:absolute md:bottom-6 md:left-6">
+                    ${isAdmin ? `
+                    <button onclick="openEditProjectModal(${projId})" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl font-bold shadow-lg transition-transform hover:-translate-y-1 text-sm"><i class="fas fa-edit"></i> تعديل</button>
+                    <button onclick="openAddFloorModal(${projId})" class="bg-vivid-orange hover:bg-vivid-orangeDark text-white px-4 py-2.5 rounded-xl font-bold shadow-lg transition-transform hover:-translate-y-1 text-sm"><i class="fas fa-layer-group"></i> دور جديد</button>
+                    ` : ''}
+                </div>
+            </div>
+
+            <div class="mb-10">
+                <h3 class="text-xl font-black dark:text-white mb-4"><i class="fas fa-building text-royal-gold"></i> المخطط الداخلي للمشروع (الأدوار والوحدات)</h3>
+                ${floorsHTML || '<div class="text-center p-10 bg-white dark:bg-royal-darkCard rounded-xl shadow-sm text-gray-400 font-bold border border-gray-100 dark:border-gray-800">لا يوجد أدوار مسجلة في هذا المشروع</div>'}
+            </div>`;
+        }
+
+        window.openEditProjectModal = function(projId) {
+            const proj = state.projects.find(p => p.id === projId);
+            openModal(`
+                <div class="p-6 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 rounded-t-2xl flex justify-between">
+                    <h3 class="font-black text-xl dark:text-white"><i class="fas fa-edit text-blue-500"></i> تعديل المشروع</h3>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
+                </div>
+                <form onsubmit="handleEditProject(event, ${projId})" class="p-6 bg-white dark:bg-royal-darkCard rounded-b-2xl space-y-4">
+                    <div><label class="block text-sm font-bold mb-1 dark:text-gray-300">اسم المشروع *</label><input type="text" id="eproj-name" class="royal-input text-lg font-bold" required value="${proj.name}"></div>
+                    <div><label class="block text-sm font-bold mb-1 dark:text-gray-300">موقع المشروع *</label><input type="text" id="eproj-loc" class="royal-input" required value="${proj.location}"></div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">صورة الواجهة الرئيسية (اتركه فارغاً للحفاظ على الصورة القديمة)</label>
+                        <input type="file" id="eproj-imgs" multiple accept="image/*" class="royal-input text-sm file:bg-gray-200 file:border-0 file:rounded-lg file:px-4 file:py-2">
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg mt-6 transition-colors">حفظ التعديلات</button>
+                </form>
+            `);
+        }
+
+        window.handleEditProject = async function(e, projId) {
+            e.preventDefault();
+            const proj = state.projects.find(p => p.id === projId);
+            proj.name = document.getElementById('eproj-name').value;
+            proj.location = document.getElementById('eproj-loc').value;
+            
+            const fileInput = document.getElementById('eproj-imgs');
+            if (fileInput.files.length > 0) {
+                showLoader('جاري تحديث واجهة المشروع...');
+                try { 
+                    proj.images = await readMultipleFiles(fileInput.files); 
+                } catch (err) { 
+                    showToast('خطأ بالصور', 'error'); 
+                }
+                hideLoader();
+            }
+            
+            logActivity(state.currentUser.id, 'إدارة مشاريع', `تم تعديل بيانات المشروع: ${proj.name}`);
+            closeModal(); 
+            showToast('تم تعديل المشروع بنجاح.'); 
+            renderView();
+        }
+
+        window.openAddFloorModal = function(projId) {
+            showPromptModal('أدخل اسم الدور الجديد (مثال: الدور الأرضي، الدور الأول...):', '', (val) => {
+                if(val.trim()) {
+                    const proj = state.projects.find(p => p.id === projId);
+                    if(!proj.floors) proj.floors = [];
+                    proj.floors.push({ id: Date.now(), name: val, units: [] });
+                    logActivity(state.currentUser.id, 'إدارة مشاريع', `إضافة ${val} لمشروع ${proj.name}`);
+                    showToast('تم إضافة الدور. يمكنك إضافة وحدات بداخله الآن.'); renderView();
+                }
+            });
+        }
+
+        window.openAddUnitModal = function(projId, floorId) {
+            openModal(`
+                <div class="p-6 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 rounded-t-2xl flex justify-between">
+                    <h3 class="font-black text-xl dark:text-white"><i class="fas fa-plus text-blue-500"></i> إضافة وحدة جديدة للدور</h3>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
+                </div>
+                <form onsubmit="handleAddUnit(event, ${projId}, ${floorId})" class="p-6 bg-white dark:bg-royal-darkCard rounded-b-2xl space-y-4">
+                    <input type="text" id="nu-title" class="royal-input" required placeholder="اسم/رقم الوحدة (مثال: شقة 101)">
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="number" id="nu-price" class="royal-input" required placeholder="السعر" min="0">
+                        <select id="nu-type" class="royal-input" onchange="toggleUnitBeds(this.value, 'nu-beds-wrap')"><option value="سكني">سكني</option><option value="تجاري">تجاري/إداري</option></select>
+                        <input type="number" id="nu-area" class="royal-input" required placeholder="المساحة (م²)" min="0">
+                        <div id="nu-beds-wrap"><input type="number" id="nu-beds" class="royal-input" placeholder="عدد الغرف" value="0"></div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">صور الوحدة الداخية (متاح أكثر من صورة)</label>
+                        <input type="file" id="nu-imgs" multiple accept="image/*" class="royal-input text-sm file:bg-gray-200 file:border-0 file:rounded-lg file:px-4 file:py-2">
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg mt-4">حفظ الوحدة بالدور</button>
+                </form>
+            `);
+        }
+
+        window.toggleUnitBeds = function(val, wrapId) { document.getElementById(wrapId).style.display = (val === 'سكني') ? 'block' : 'none'; }
+
+        window.handleAddUnit = async function(e, projId, floorId) {
+            e.preventDefault();
+            const fileInput = document.getElementById('nu-imgs');
+            let imagesArray = ['https://placehold.co/800x400/1e293b/D4AF37?text=Unit+Image'];
+            if (fileInput.files.length > 0) { showLoader('جاري رفع الصور...'); try { imagesArray = await readMultipleFiles(fileInput.files); } catch(err){} hideLoader(); }
+            
+            const proj = state.projects.find(p => p.id === projId);
+            const floor = proj.floors.find(f => f.id === floorId);
+            const type = document.getElementById('nu-type').value;
+            const beds = type === 'سكني' ? parseInt(document.getElementById('nu-beds').value) || 0 : 0;
+
+            const newUnit = {
+                id: Date.now(), title: document.getElementById('nu-title').value, type: type,
+                price: parseInt(document.getElementById('nu-price').value), area: parseInt(document.getElementById('nu-area').value),
+                beds: beds, baths: type === 'سكني' ? 1 : 0, images: imagesArray, status: 'available',
+                agentId: null, coAgentId: null, clientId: null, notes: '', history: [{date: getExactDateTime(), note: 'تم إضافة الوحدة للنظام.'}]
+            };
+            if(!floor.units) floor.units = [];
+            floor.units.push(newUnit);
+            logActivity(state.currentUser.id, 'إدارة مشاريع', `تم إضافة وحدة (${newUnit.title}) بـ ${proj.name}`);
+            closeModal(); showToast('تم الحفظ'); renderView();
+            setTimeout(() => toggleAccordion(floorId), 100); 
+        }
+
+        window.openEditUnitModal = function(projId, floorId, unitId) {
+            const proj = state.projects.find(p => p.id === projId);
+            const floor = proj.floors.find(f => f.id === floorId);
+            const unit = floor.units.find(u => u.id === unitId);
+            
+            openModal(`
+                <div class="p-6 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 rounded-t-2xl flex justify-between">
+                    <h3 class="font-black text-xl dark:text-white"><i class="fas fa-pencil-alt text-blue-500"></i> تعديل بيانات الوحدة</h3>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
+                </div>
+                <form onsubmit="handleEditUnit(event, ${projId}, ${floorId}, ${unitId})" class="p-6 bg-white dark:bg-royal-darkCard rounded-b-2xl space-y-4">
+                    <input type="text" id="eu-title" class="royal-input" required value="${unit.title}">
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="number" id="eu-price" class="royal-input" required value="${unit.price}">
+                        <select id="eu-type" class="royal-input" onchange="toggleUnitBeds(this.value, 'eu-beds-wrap')">
+                            <option value="سكني" ${unit.type==='سكني'?'selected':''}>سكني</option>
+                            <option value="تجاري" ${unit.type==='تجاري'?'selected':''}>تجاري</option>
+                        </select>
+                        <input type="number" id="eu-area" class="royal-input" required value="${unit.area}">
+                        <div id="eu-beds-wrap" style="display:${unit.type==='سكني'?'block':'none'}"><input type="number" id="eu-beds" class="royal-input" value="${unit.beds}"></div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">تحديث الصور (سيتم الاستبدال إذا رفعت صور جديدة)</label>
+                        <input type="file" id="eu-imgs" multiple accept="image/*" class="royal-input text-sm file:bg-gray-200 file:border-0 file:rounded-lg file:px-4 file:py-2">
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg mt-4">حفظ التعديلات</button>
+                </form>
+            `);
+        }
+
+        window.handleEditUnit = async function(e, pId, fId, uId) {
+            e.preventDefault();
+            const u = state.projects.find(p=>p.id===pId).floors.find(f=>f.id===fId).units.find(x=>x.id===uId);
+            u.title = document.getElementById('eu-title').value;
+            u.price = parseInt(document.getElementById('eu-price').value);
+            u.type = document.getElementById('eu-type').value;
+            u.area = parseInt(document.getElementById('eu-area').value);
+            u.beds = u.type === 'سكني' ? parseInt(document.getElementById('eu-beds').value) : 0;
+            
+            const fileInput = document.getElementById('eu-imgs');
+            if (fileInput.files.length > 0) {
+                showLoader('جاري التحديث...');
+                try { u.images = await readMultipleFiles(fileInput.files); } catch(err){}
+                hideLoader();
+            }
+            logActivity(state.currentUser.id, 'تعديل وحدة', `قام بتعديل وحدة: ${u.title}`);
+            closeModal(); showToast('تم التعديل بنجاح'); renderView();
+            setTimeout(() => { const el = document.getElementById('acc-content-'+fId); if(el) el.classList.add('open'); document.getElementById('acc-icon-'+fId).classList.add('open'); }, 100);
+        }
+
+        window.cancelUnitNegotiation = function(pId, fId, uId) {
+            showConfirmModal('إلغاء التفاوض وجعل الوحدة متاحة؟', 'نعم، إتاحة', 'bg-red-600', () => {
+                const u = state.projects.find(p=>p.id===pId).floors.find(f=>f.id===fId).units.find(x=>x.id===uId);
+                u.status = 'available'; u.clientId = null; u.agentId = null; u.coAgentId = null; u.notes = '';
+                u.history.push({date: getExactDateTime(), note: 'تم إلغاء التفاوض وإتاحة الوحدة.'});
+                logActivity(state.currentUser.id, 'إلغاء تفاوض', `أتاح الوحدة: ${u.title}`);
+                showToast('الوحدة الآن متاحة للجميع'); renderView();
+            });
+        }
+
+        window.openHelpUnitModal = function(pId, fId, uId) {
+            const usersOpts = state.users.filter(u => u.id !== state.currentUser.id && u.role !== 'data_entry' && !u.isDeleted).map(u => `<option value="${u.id}">${u.name}</option>`).join('');
+            openModal(`
+                <div class="p-6 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 rounded-t-2xl flex justify-between"><h3 class="font-black text-xl dark:text-white">طلب مساعدة زميل</h3><button onclick="closeModal()" class="text-gray-400 hover:text-red-500"><i class="fas fa-times"></i></button></div>
+                <div class="p-6 bg-white dark:bg-royal-darkCard rounded-b-2xl space-y-4">
+                    <p class="font-bold text-gray-700 dark:text-gray-300">اختر الزميل ليشاركك التفاوض على هذه الوحدة.</p>
+                    <select id="help-agent" class="royal-input"><option value="">-- اختر الزميل --</option>${usersOpts}</select>
+                    <button onclick="saveHelpUnit(${pId}, ${fId}, ${uId})" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow-lg mt-4">إرسال طلب المساعدة</button>
+                </div>
+            `);
+        }
+
+        window.saveHelpUnit = function(pId, fId, uId) {
+            const hId = document.getElementById('help-agent').value;
+            if(!hId) return;
+            const u = state.projects.find(p=>p.id===pId).floors.find(f=>f.id===fId).units.find(x=>x.id===uId);
+            u.coAgentId = parseInt(hId);
+            const user = state.users.find(x => x.id == hId);
+            u.history.push({date: getExactDateTime(), note: `تم إضافة الزميل ${user.name} كمساعد.`});
+            logActivity(state.currentUser.id, 'طلب مساعدة', `أشرك (${user.name}) في الوحدة: ${u.title}`);
+            closeModal(); showToast('تمت مشاركة الصلاحية بنجاح'); renderView();
+        }
+
+        window.openChangeUnitStatusModal = function(pId, fId, uId) {
+            const u = state.projects.find(p=>p.id===pId).floors.find(f=>f.id===fId).units.find(x=>x.id===uId);
+            const isAdmin = ['admin', 'team_leader'].includes(state.currentUser.role);
+            const availableClients = isAdmin ? state.clients : state.clients.filter(c => c.agentId === state.currentUser.id);
+            const clientsOptions = availableClients.filter(c => !c.isDeleted).map(c => `<option value="${c.id}" ${u.clientId == c.id ? 'selected' : ''}>${c.name}</option>`).join('');
+            
+            openModal(`
+                <div class="p-6 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-t-2xl flex justify-between items-center">
+                    <h3 class="font-black text-xl dark:text-white"><i class="fas fa-edit text-royal-gold"></i> تحديث حالة الوحدة</h3>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
+                </div>
+                <form onsubmit="handleUnitStatusChange(event, ${pId}, ${fId}, ${uId})" class="p-6 bg-white dark:bg-royal-darkCard rounded-b-2xl space-y-4">
+                    <p class="font-bold text-lg dark:text-gray-200">${u.title}</p>
+                    <div>
+                        <label class="block text-sm font-bold mb-2 dark:text-gray-300">اختر الحالة</label>
+                        <select id="us-status" class="royal-input font-bold text-lg" required onchange="toggleUnitClientReq(this.value)">
+                            <option value="available" ${u.status==='available'?'selected':''}>متاح</option>
+                            <option value="negotiation" ${u.status==='negotiation'?'selected':''}>تفاوض (حجز المشترى)</option>
+                            <option value="reserved" ${u.status==='reserved'?'selected':''}>حجز (دفع مقدم)</option>
+                            <option value="sold" class="text-red-600">إقفال البيع (مباع)</option>
+                        </select>
+                    </div>
+                    <div id="uclient-wrap" class="${u.status==='available'?'hidden':''}">
+                        <label class="block text-sm font-bold mb-2 dark:text-gray-300">اربط بعميل (إجباري للتفاوض/البيع)</label>
+                        <select id="us-client" class="royal-input"><option value="">-- اختر العميل --</option>${clientsOptions}</select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold mb-2 dark:text-gray-300">ملاحظات التفاوض والتاريخ</label>
+                        <textarea id="us-notes" class="royal-input" rows="2" placeholder="اكتب تفاصيل المفاوضات...">${u.notes || ''}</textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-royal-gold text-white font-black text-lg py-3 rounded-xl shadow-lg hover:-translate-y-1 transform transition-all">تحديث وربط</button>
+                </form>
+            `);
+        }
+
+        window.toggleUnitClientReq = function(val) { document.getElementById('uclient-wrap').style.display = (val === 'available') ? 'none' : 'block'; }
+
+        window.handleUnitStatusChange = function(e, pId, fId, uId) {
+            e.preventDefault();
+            const u = state.projects.find(p=>p.id===pId).floors.find(f=>f.id===fId).units.find(x=>x.id===uId);
+            const newStatus = document.getElementById('us-status').value;
+            const clientId = document.getElementById('us-client').value;
+            const notes = document.getElementById('us-notes').value;
+            const client = clientId ? state.clients.find(c => c.id == clientId) : null;
+            
+            if(newStatus !== 'available' && !client) return showToast('يجب اختيار عميل!', 'error');
+
+            u.status = newStatus; u.clientId = client ? client.id : null; 
+            if(u.status === 'available') { u.agentId = null; u.coAgentId = null; }
+            else if(!u.agentId) u.agentId = state.currentUser.id;
+            u.notes = notes;
+
+            const stTxt = { 'available':'متاح', 'negotiation':'تفاوض', 'reserved':'حجز', 'sold':'مباع' }[newStatus];
+            let details = `غيّر حالة الوحدة [${u.title}] إلى ${stTxt}.`;
+            const actionTime = getExactDateTime();
+            
+            u.history.push({ date: actionTime, note: `الحالة: ${stTxt}. الملاحظات: ${notes}` });
+
+            if(client) {
+                client.history.push({ date: actionTime, note: `تحديث تفاوض على (${u.title}): ${notes || stTxt}` });
+            }
+
+            if(newStatus === 'sold') {
+                const comm = u.price * state.settings.commissionRate;
+                details += ` العميل: ${client.name}. **(عمولة: ${formatCurrency(comm)})**`;
+                confetti({ particleCount: 200, spread: 100, origin: { y: 0.5 } });
+                showToast('ألف مبروك! تم إقفال الديل بنجاح.', 'success');
+            } else {
+                if(client) details += ` العميل: ${client.name}`;
+                showToast('تم التحديث بنجاح');
+            }
+
+            logActivity(state.currentUser.id, 'تحديث وحدة', details);
+            closeModal(); renderView();
+            setTimeout(() => { const el = document.getElementById('acc-content-'+fId); if(el) el.classList.add('open'); document.getElementById('acc-icon-'+fId).classList.add('open'); }, 100);
+        }
+
+        window.deleteProject = function(projId) {
+            showConfirmModal('سيتم نقل المشروع لـ "سلة المهملات". يمكنك استرجاعه لاحقاً أو حذفه نهائياً من هناك.', 'نقل للمهملات', 'bg-red-600', () => {
+                const proj = state.projects.find(p => p.id === projId);
+                proj.isDeleted = true;
+                proj.deletedAt = getExactDateTime();
+                logActivity(state.currentUser.id, 'نقل لمهملات', `تم نقل مشروع لسلة المهملات: ${proj.name}`);
+                showToast('تم نقل المشروع لسلة المهملات');
+                if(state.viewedProject === projId) state.viewedProject = null;
+                if(state.viewedConstructionProject === projId) state.viewedConstructionProject = null;
+                renderView();
+            });
+        }
+
+        window.deleteFloor = function(projId, floorId) {
+            showConfirmModal('سيتم حذف هذا الدور نهائياً من المشروع ولن يمكن استرجاعه. هل أنت متأكد؟', 'حذف نهائي', 'bg-red-700', () => {
+                const proj = state.projects.find(p => p.id === projId);
+                const floor = proj.floors.find(f => f.id === floorId);
+                proj.floors = proj.floors.filter(f => f.id !== floorId);
+                logActivity(state.currentUser.id, 'حذف دور', `قام بحذف دور (${floor.name}) من مشروع ${proj.name}`);
+                showToast('تم حذف الدور نهائياً');
+                renderView();
+            });
+        }
+
+        window.deleteUnit = function(projId, floorId, unitId) {
+            showConfirmModal('سيتم حذف هذه الوحدة نهائياً من المشروع ولن يمكن استرجاعها. متأكد؟', 'حذف نهائي', 'bg-red-700', () => {
+                const proj = state.projects.find(p => p.id === projId);
+                const floor = proj.floors.find(f => f.id === floorId);
+                const unit = floor.units.find(u => u.id === unitId);
+                floor.units = floor.units.filter(u => u.id !== unitId);
+                logActivity(state.currentUser.id, 'حذف وحدة', `قام بحذف وحدة (${unit.title}) من ${floor.name} بمشروع ${proj.name}`);
+                showToast('تم حذف الوحدة نهائياً');
+                renderView();
+                setTimeout(() => { const el = document.getElementById('acc-content-'+floorId); if(el) el.classList.add('open'); document.getElementById('acc-icon-'+floorId).classList.add('open'); }, 100);
+            });
+        }
+
+        window.deleteConstructionStage = function(projId, stageId) {
+            showConfirmModal('سيتم حذف التحديث الإنشائي نهائياً. هل أنت متأكد؟', 'حذف نهائي', 'bg-red-700', () => {
+                const proj = state.projects.find(p => p.id === projId);
+                const stage = proj.constructionStages.find(s => s.id === stageId);
+                proj.constructionStages = proj.constructionStages.filter(s => s.id !== stageId);
+                logActivity(state.currentUser.id, 'حذف تحديث موقع', `قام بحذف تحديث (${stage.title}) من مشروع ${proj.name}`);
+                showToast('تم الحذف نهائياً');
+                renderView();
+            });
+        }
+
+        function renderConstructionDetails(projId) {
+            const proj = state.projects.find(p => p.id === projId);
+            const isAdmin = ['admin', 'data_entry'].includes(state.currentUser.role);
+            
+            const stagesList = [...(proj.constructionStages || [])].reverse().map(stage => `
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="font-bold text-blue-600 dark:text-blue-400">${stage.title}</h4>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-bold text-gray-400 bg-white dark:bg-gray-900 px-2 py-1 rounded shadow-sm" dir="ltr"><i class="fas fa-calendar-alt mr-1"></i>${stage.date}</span>
+                                ${isAdmin ? `<button onclick="deleteConstructionStage(${proj.id}, ${stage.id})" class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 dark:bg-red-900/30 p-1 rounded transition-colors" title="حذف هذا التحديث"><i class="fas fa-trash-alt"></i></button>` : ''}
+                            </div>
+                        </div>
+                        <p class="text-gray-700 dark:text-gray-300 text-sm mb-3">${stage.description}</p>
+                        ${(stage.images || []).length > 0 ? `<div class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">${stage.images.map(img => `<img src="${img}" class="h-20 w-full object-cover rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">`).join('')}</div>` : ''}
+                    </div>
+                </div>
+            `).join('');
+
+            return `
+            <div class="mb-6 flex gap-4 items-center">
+                <button onclick="state.viewedConstructionProject=null; renderView();" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-xl font-bold shadow transition-colors"><i class="fas fa-arrow-right ml-2"></i>عودة للمشاريع</button>
+                <h2 class="text-3xl font-black dark:text-white text-vivid-orange">إنشاءات: ${proj.name}</h2>
+            </div>
+            
+            <div class="bg-white dark:bg-royal-darkCard rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-6 mb-6 flex flex-col md:flex-row gap-6 relative overflow-hidden">
+                <div class="w-full md:w-1/3 h-48 rounded-xl overflow-hidden shadow-inner"><img src="${(proj.images || [])[0] || 'https://placehold.co/800x400/1e293b/D4AF37?text=No+Image'}" class="w-full h-full object-cover"></div>
+                <div class="flex-1 flex flex-col justify-center">
+                    <p class="text-gray-500 dark:text-gray-400 font-bold mb-2"><i class="fas fa-map-marker-alt text-vivid-orange"></i> ${proj.location}</p>
+                    <div class="flex gap-6 mt-4">
+                        <div class="text-center"><span class="block text-2xl font-black dark:text-white">${(proj.constructionStages || []).length}</span><span class="text-sm text-gray-500 font-bold">إجمالي التحديثات المسجلة</span></div>
+                    </div>
+                </div>
+                <div class="flex gap-2 mt-4 md:mt-0 md:absolute md:bottom-6 md:left-6">
+                    ${isAdmin ? `
+                    <button onclick="openEditProjectModal(${projId})" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl font-bold shadow-lg transition-transform hover:-translate-y-1 text-sm"><i class="fas fa-edit"></i> تعديل المشروع</button>
+                    <button onclick="openAddStageModal(${projId})" class="bg-vivid-orange hover:bg-vivid-orangeDark text-white px-4 py-2.5 rounded-xl font-bold shadow-lg transition-transform hover:-translate-y-1 text-sm"><i class="fas fa-plus"></i> تحديث جديد</button>
+                    ` : ''}
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-royal-darkCard rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-6 mb-10">
+                <h3 class="text-xl font-black dark:text-white mb-6"><i class="fas fa-hard-hat text-vivid-orange"></i> سجل التطورات والتحديثات</h3>
+                <div class="timeline-container">
+                    ${stagesList || '<div class="text-center text-gray-400 font-bold py-8">لا يوجد تحديثات مسجلة لمراحل إنشاء هذا المشروع حتى الآن.</div>'}
+                </div>
+            </div>`;
+        }
+
+        function getConstructionHTML() {
+            if(state.viewedConstructionProject) return renderConstructionDetails(state.viewedConstructionProject);
+
+            let filtered = state.projects.filter(p => !p.isDeleted);
+            if(state.filters.projSearch) {
+                const term = state.filters.projSearch.toLowerCase();
+                filtered = filtered.filter(p => p.name.toLowerCase().includes(term) || p.location.toLowerCase().includes(term));
+            }
+            
+            const isAdmin = ['admin', 'data_entry'].includes(state.currentUser.role);
+
+            const projCards = filtered.map(proj => {
+                const stagesCount = (proj.constructionStages || []).length;
+
+                return `
+                <div class="prop-card bg-white dark:bg-royal-darkCard rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col cursor-pointer" onclick="state.viewedConstructionProject=${proj.id}; renderView();">
+                    <div class="h-48 relative overflow-hidden group">
+                        <img src="${(proj.images || ['https://placehold.co/800x400/1e293b/D4AF37?text=No+Image'])[0]}" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+                        ${isAdmin ? `<button onclick="event.stopPropagation(); deleteProject(${proj.id})" class="absolute top-3 left-3 bg-red-600/90 hover:bg-red-700 text-white w-8 h-8 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110 z-20" title="حذف المشروع"><i class="fas fa-trash-alt text-xs"></i></button>` : ''}
+                        <div class="absolute bottom-4 right-4 left-4">
+                            <h3 class="text-white font-black text-xl truncate mb-1">${proj.name}</h3>
+                            <p class="text-gray-300 font-bold text-sm"><i class="fas fa-map-marker-alt text-vivid-orange"></i> ${proj.location}</p>
+                        </div>
+                    </div>
+                    <div class="p-4 flex-1 flex flex-col bg-gray-50 dark:bg-gray-800/50">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-bold dark:text-gray-300"><i class="fas fa-hard-hat text-vivid-orange"></i> ${stagesCount} تحديثات مسجلة بالموقع</span>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+
+            return `
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                <h2 class="text-3xl font-black dark:text-white">مراحل الإنشاء والتطوير (Updates)</h2>
+                ${isAdmin ? `<button onclick="openAddProjectModal()" class="w-full md:w-auto bg-gradient-to-r from-vivid-orange to-vivid-orangeDark text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:scale-105 transition-transform flex items-center justify-center gap-2"><i class="fas fa-plus-circle"></i> إضافة مشروع جديد</button>` : ''}
+            </div>
+            
+            <div class="bg-white dark:bg-royal-darkCard p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 mb-6">
+                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">بحث في أسماء المشاريع والمواقع</label>
+                <input type="text" id="fps-search" class="royal-input text-lg font-bold" placeholder="اكتب اسم المشروع أو الموقع للبحث..." value="${state.filters.projSearch}" oninput="updateProjFilters()">
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 pb-10">${projCards || '<div class="col-span-4 text-center text-gray-400 py-10 font-bold">لا يوجد مشاريع لعرضها</div>'}</div>`;
+        }
+
+        window.openAddStageModal = function(projId) {
+            const proj = state.projects.find(p => p.id === projId);
+            openModal(`
+                <div class="p-6 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 flex justify-between rounded-t-2xl">
+                    <h3 class="font-black text-xl dark:text-white"><i class="fas fa-hard-hat text-vivid-orange"></i> تحديث موقع: ${proj.name}</h3>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
+                </div>
+                <form onsubmit="handleAddStage(event, ${projId})" class="p-6 bg-white dark:bg-royal-darkCard rounded-b-2xl space-y-4">
+                    <div><label class="block text-sm font-bold mb-1 dark:text-gray-300">عنوان التحديث (مثال: الانتهاء من الأساسات) *</label><input type="text" id="ns-title" class="royal-input" required></div>
+                    <div><label class="block text-sm font-bold mb-1 dark:text-gray-300">تاريخ التحديث *</label><input type="date" id="ns-date" class="royal-input" required value="${new Date().toISOString().split('T')[0]}"></div>
+                    <div><label class="block text-sm font-bold mb-1 dark:text-gray-300">الوصف التفصيلي لما تم إنجازه</label><textarea id="ns-desc" class="royal-input" rows="3"></textarea></div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">صور حية من الموقع (يفضل رفع صور متعددة)</label>
+                        <input type="file" id="ns-imgs" multiple accept="image/*" class="royal-input text-sm file:bg-gray-200 file:border-0 file:rounded-lg file:px-4 file:py-2">
+                    </div>
+                    <button type="submit" class="w-full bg-vivid-orange hover:bg-vivid-orangeDark text-white font-bold py-3 rounded-xl shadow-lg mt-4">نشر التحديث</button>
+                </form>
+            `);
+        }
+
+        window.handleAddStage = async function(e, projId) {
+            e.preventDefault();
+            const fileInput = document.getElementById('ns-imgs');
+            let imagesArray = [];
+            if (fileInput.files.length > 0) {
+                showLoader('جاري رفع الصور والتحديث...');
+                try { imagesArray = await readMultipleFiles(fileInput.files); } catch(err){}
+                hideLoader();
+            }
+            
+            const proj = state.projects.find(p => p.id === projId);
+            if(!proj.constructionStages) proj.constructionStages = [];
+            
+            const newStage = { id: Date.now(), title: document.getElementById('ns-title').value, date: document.getElementById('ns-date').value, description: document.getElementById('ns-desc').value, images: imagesArray };
+            
+            proj.constructionStages.push(newStage);
+            logActivity(state.currentUser.id, 'مراحل الإنشاء', `تحديث إنشاءات بمشروع ${proj.name}: ${newStage.title}`);
+            closeModal(); showToast('تم نشر التحديث بنجاح'); renderView();
+        }
+
+        function getUsersHTML() {
+            const tlOptions = state.users.filter(u => !u.isDeleted && u.role === 'team_leader').map(u => `<option value="${u.id}">${u.name}</option>`).join('');
+            
+            const rows = state.users.filter(u => !u.isDeleted).map(u => {
+                const tl = state.users.find(x => x.id === u.teamLeaderId);
+                const tlName = tl && !tl.isDeleted ? tl.name : '-';
+                return `
+                <tr class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                    <td class="py-4 px-4 font-bold dark:text-white flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex justify-center items-center"><i class="fas fa-user text-royal-gold"></i></div>${u.name}</td>
+                    <td class="py-4 px-4 text-gray-600 dark:text-gray-300" dir="ltr">${u.username}</td>
+                    <td class="py-4 px-4"><span class="px-2 py-1 text-xs font-bold rounded bg-blue-100 text-blue-700">${{admin:'المدير العام', employee:'مبيعات', marketing:'تسويق', team_leader:'تيم ليدر', data_entry:'مدخل بيانات'}[u.role]}</span></td>
+                    <td class="py-4 px-4 text-sm font-bold text-gray-500">${u.role === 'employee' ? tlName : 'غير مطبق'}</td>
+                    <td class="py-4 px-4 flex gap-2">
+                        <button onclick="openEditUserModal(${u.id})" class="text-gray-500 hover:text-blue-500 bg-gray-100 hover:bg-blue-50 dark:bg-gray-700 p-2 rounded" title="تعديل البيانات"><i class="fas fa-edit"></i></button>
+                        ${u.id !== 1 ? `<button onclick="deleteUser(${u.id})" class="text-gray-500 hover:text-red-500 bg-gray-100 hover:bg-red-50 dark:bg-gray-700 p-2 rounded" title="حذف الموظف"><i class="fas fa-trash"></i></button>` : ''}
+                    </td>
+                </tr>`;
+            }).join('');
+
+            return `
+            <div class="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
+                <div><h2 class="text-3xl font-black dark:text-white">إدارة الموظفين والصلاحيات</h2></div>
+                <button onclick="openAddUserModal()" class="bg-royal-gold text-white px-5 py-2.5 rounded-xl font-bold shadow-md hover:bg-royal-goldDark transition-colors"><i class="fas fa-user-plus ml-2"></i> موظف جديد</button>
+            </div>
+            <div class="bg-white dark:bg-royal-darkCard rounded-2xl shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-right whitespace-nowrap"><thead class="bg-gray-50 dark:bg-gray-800/50"><tr><th class="py-4 px-4 font-black">الاسم</th><th class="py-4 px-4 font-black">المستخدم</th><th class="py-4 px-4 font-black">الدور</th><th class="py-4 px-4 font-black">قائده المباشر (TL)</th><th class="py-4 px-4 font-black">إجراءات التحكم</th></tr></thead><tbody>${rows}</tbody></table>
+                </div>
+            </div>`;
+        }
+
+        window.openAddUserModal = function() {
+            const tlOptions = state.users.filter(u => !u.isDeleted && u.role === 'team_leader').map(u => `<option value="${u.id}">${u.name}</option>`).join('');
+            openModal(`
+                <div class="p-6 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-t-2xl flex justify-between">
+                    <h3 class="font-black text-xl dark:text-white">إنشاء حساب جديد</h3>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-red-500"><i class="fas fa-times"></i></button>
+                </div>
+                <form onsubmit="handleUserSubmit(event, null)" class="p-6 bg-white dark:bg-royal-darkCard rounded-b-2xl space-y-4">
+                    <div><label class="block font-bold mb-1 dark:text-white">الاسم الكامل *</label><input type="text" id="u-name" class="royal-input" required></div>
+                    <div><label class="block font-bold mb-1 dark:text-white">اسم المستخدم (Login) *</label><input type="text" id="u-username" class="royal-input" required dir="ltr"></div>
+                    <div><label class="block font-bold mb-1 dark:text-white">كلمة المرور *</label><input type="password" id="u-pass" class="royal-input" required></div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block font-bold mb-1 dark:text-white">الدور الوظيفي</label>
+                            <select id="u-role" class="royal-input font-bold" onchange="toggleTLSelect(this.value, 'u-tl-wrap')">
+                                <option value="employee">موظف مبيعات (Sales)</option>
+                                <option value="marketing">تسويق (Marketing)</option>
+                                <option value="team_leader">تيم ليدر (Team Leader)</option>
+                                <option value="data_entry">مدخل بيانات (Data Entry)</option>
+                                <option value="admin">مدير نظام (Admin)</option>
+                            </select>
+                        </div>
+                        <div id="u-tl-wrap">
+                            <label class="block font-bold mb-1 dark:text-white">التابع لـ (Team Leader)</label>
+                            <select id="u-tl" class="royal-input"><option value="">-- بدون قائد مباشر --</option>${tlOptions}</select>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-royal-gold text-white font-bold py-3 rounded-xl shadow-lg">إنشاء الحساب</button>
+                </form>
+            `);
+        }
+
+        window.openEditUserModal = function(id) {
+            const u = state.users.find(x => x.id === id);
+            const tlOptions = state.users.filter(x => !x.isDeleted && x.role === 'team_leader' && x.id !== u.id).map(x => `<option value="${x.id}" ${x.id===u.teamLeaderId?'selected':''}>${x.name}</option>`).join('');
+            openModal(`
+                <div class="p-6 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-t-2xl flex justify-between">
+                    <h3 class="font-black text-xl dark:text-white">تعديل بيانات: ${u.name}</h3>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-red-500"><i class="fas fa-times"></i></button>
+                </div>
+                <form onsubmit="handleUserSubmit(event, ${u.id})" class="p-6 bg-white dark:bg-royal-darkCard rounded-b-2xl space-y-4">
+                    <div><label class="block font-bold mb-1 dark:text-white">الاسم الكامل</label><input type="text" id="u-name" class="royal-input" required value="${u.name}"></div>
+                    <div><label class="block font-bold mb-1 dark:text-white">اسم المستخدم</label><input type="text" id="u-username" class="royal-input" required value="${u.username}" dir="ltr" ${u.id===1?'readonly':''}></div>
+                    <div><label class="block font-bold mb-1 dark:text-white">تعديل كلمة المرور (اختياري)</label><input type="text" id="u-pass" class="royal-input" placeholder="اتركه فارغاً للحفاظ على القديم" dir="ltr"></div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block font-bold mb-1 dark:text-white">الدور الوظيفي</label>
+                            <select id="u-role" class="royal-input font-bold" ${u.id===1?'disabled':''} onchange="toggleTLSelect(this.value, 'u-tl-wrap')">
+                                <option value="employee" ${u.role==='employee'?'selected':''}>موظف مبيعات</option>
+                                <option value="marketing" ${u.role==='marketing'?'selected':''}>تسويق</option>
+                                <option value="team_leader" ${u.role==='team_leader'?'selected':''}>تيم ليدر</option>
+                                <option value="data_entry" ${u.role==='data_entry'?'selected':''}>مدخل بيانات</option>
+                                <option value="admin" ${u.role==='admin'?'selected':''}>مدير نظام</option>
+                            </select>
+                        </div>
+                        <div id="u-tl-wrap" style="display:${u.role==='employee'?'block':'none'}">
+                            <label class="block font-bold mb-1 dark:text-white">التابع لـ (Team Leader)</label>
+                            <select id="u-tl" class="royal-input"><option value="">-- بدون قائد مباشر --</option>${tlOptions}</select>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-blue-700">حفظ التعديلات</button>
+                </form>
+            `);
+        }
+
+        window.toggleTLSelect = function(val, wrapId) { document.getElementById(wrapId).style.display = (val === 'employee') ? 'block' : 'none'; }
+
+        window.handleUserSubmit = function(e, id) {
+            e.preventDefault();
+            const n = document.getElementById('u-name').value; const un = document.getElementById('u-username').value;
+            const r = document.getElementById('u-role') ? document.getElementById('u-role').value : 'admin';
+            const pass = document.getElementById('u-pass').value;
+            const tlId = r === 'employee' ? (parseInt(document.getElementById('u-tl').value) || null) : null;
+            
+            if(id) {
+                const u = state.users.find(x => x.id === id);
+                if(u.username !== un && state.users.find(x => x.username === un)) return showToast('اسم المستخدم محجوز', 'error');
+                u.name = n; u.username = un; 
+                if(id !== 1) u.role = r; 
+                u.teamLeaderId = tlId;
+                if(pass.trim() !== '') u.password = pass; 
+                showToast('تم تعديل بيانات الموظف'); logActivity(state.currentUser.id, 'إدارة', `تعديل بيانات الموظف: ${u.name}`);
+            } else {
+                if(state.users.find(x => x.username === un)) return showToast('اسم المستخدم محجوز', 'error');
+                state.users.push({ id: Date.now(), name: n, username: un, password: pass, role: r, teamLeaderId: tlId, target: {type: 'money', value: 0}, isDeleted: false });
+                showToast('تم إضافة الموظف الجديد بنجاح'); logActivity(state.currentUser.id, 'إدارة', `إنشاء حساب جديد: ${n}`);
+            }
+            closeModal(); renderView();
+        }
+
+        window.deleteUser = function(id) {
+            showConfirmModal('سيتم إيقاف حساب الموظف ونقله لسلة المهملات. متأكد؟', 'نقل للمهملات', 'bg-red-600', () => {
+                const u = state.users.find(x => x.id === id);
+                u.isDeleted = true;
+                u.deletedAt = getExactDateTime();
+                state.projects.forEach(p => (p.floors || []).forEach(f => (f.units || []).forEach(un => { if(un.agentId === id) un.agentId = null; if(un.coAgentId === id) un.coAgentId = null; })));
+                state.clients.forEach(c => { if(c.agentId === id) c.agentId = null; });
+                showToast('تم إيقاف الموظف ونقله للمهملات'); logActivity(state.currentUser.id, 'إيقاف موظف', `تم نقل الموظف لسلة المهملات: ${u.name}`); renderView();
+            });
+        }
+
+        window.openPersonalPasswordModal = function() {
+            openModal(`
+                <div class="p-6 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-t-2xl flex justify-between"><h3 class="font-black text-xl dark:text-white"><i class="fas fa-key text-royal-gold"></i> تغيير كلمتي المرور</h3><button onclick="closeModal()" class="text-gray-400 hover:text-red-500"><i class="fas fa-times"></i></button></div>
+                <form onsubmit="handlePersonalPasswordChange(event)" class="p-6 bg-white dark:bg-royal-darkCard rounded-b-2xl space-y-4">
+                    <div><label class="block font-bold mb-1 dark:text-white">كلمة المرور الجديدة *</label><input type="password" id="my-new-pass" class="royal-input" required minlength="4" dir="ltr"></div>
+                    <button type="submit" class="w-full bg-royal-gold text-white font-bold py-3 rounded-xl shadow-lg">تحديث كلمة المرور</button>
+                </form>
+            `);
+        }
+        window.handlePersonalPasswordChange = function(e) { e.preventDefault(); const p = document.getElementById('my-new-pass').value; state.users.find(x=>x.id===state.currentUser.id).password = p; state.currentUser.password = p; showToast('تم التحديث'); closeModal(); }
+
+        // --- Targets ---
+        function getTargetsHTML() {
+            const rows = state.users.filter(u => !u.isDeleted && (u.role === 'employee' || u.role === 'team_leader')).map(u => {
+                const targetData = u.target || { type: 'money', value: 0 };
+                const isMoney = targetData.type === 'money';
+                const displayVal = isMoney ? formatCurrency(targetData.value) : `${targetData.value} وحدة`;
+                return `
+                <tr class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                    <td class="py-4 px-4 font-bold dark:text-white">${u.name}</td>
+                    <td class="py-4 px-4 text-gray-600 dark:text-gray-300">${u.role === 'team_leader' ? 'تيم ليدر' : 'مبيعات'}</td>
+                    <td class="py-4 px-4"><span class="px-2 py-1 text-xs font-bold rounded bg-blue-100 text-blue-700">${isMoney ? 'مبيعات (مالي)' : 'عدد (رقمي)'}</span></td>
+                    <td class="py-4 px-4 font-black text-green-600">${displayVal}</td>
+                    <td class="py-4 px-4"><button onclick="openEditTargetModal(${u.id})" class="bg-royal-gold text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow hover:bg-royal-goldDark"><i class="fas fa-edit"></i> تعديل</button></td>
+                </tr>`;
+            }).join('');
+
+            return `
+            <div class="mb-6"><h2 class="text-3xl font-black dark:text-white">إدارة أهداف الموظفين (Targets)</h2></div>
+            <div class="bg-white dark:bg-royal-darkCard rounded-2xl shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-right whitespace-nowrap"><thead class="bg-gray-50 dark:bg-gray-800/50"><tr><th class="py-4 px-4 font-black">الموظف</th><th class="py-4 px-4 font-black">الوظيفة</th><th class="py-4 px-4 font-black">نوع التارجت</th><th class="py-4 px-4 font-black">القيمة</th><th class="py-4 px-4 font-black">إجراء</th></tr></thead><tbody>${rows}</tbody></table>
+                </div>
+            </div>`;
+        }
+
+        window.openEditTargetModal = function(id) {
+            const u = state.users.find(x => x.id === id);
+            const targetData = u.target || { type: 'money', value: 0 };
+            openModal(`
+                <div class="p-6 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 flex justify-between rounded-t-2xl"><h3 class="font-black text-xl dark:text-white">تحديد تارجت: ${u.name}</h3><button onclick="closeModal()" class="text-gray-400 hover:text-red-500"><i class="fas fa-times"></i></button></div>
+                <form onsubmit="handleEditTarget(event, ${u.id})" class="p-6 bg-white dark:bg-royal-darkCard rounded-b-2xl space-y-4">
+                    <div><label class="block font-bold mb-1 dark:text-white">نوع التارجت</label><select id="t-type" class="royal-input font-bold"><option value="money" ${targetData.type==='money'?'selected':''}>مبيعات (بالجنيه)</option><option value="units" ${targetData.type==='units'?'selected':''}>عدد وحدات مباعة</option></select></div>
+                    <div><label class="block font-bold mb-1 dark:text-white">قيمة التارجت</label><input type="number" id="t-val" class="royal-input text-lg font-black" required min="0" value="${targetData.value}"></div>
+                    <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-blue-700">اعتماد التارجت</button>
+                </form>
+            `);
+        }
+        window.handleEditTarget = function(e, id) { e.preventDefault(); const u = state.users.find(x => x.id === id); u.target = { type: document.getElementById('t-type').value, value: parseInt(document.getElementById('t-val').value) || 0 }; logActivity(state.currentUser.id, 'إدارة أهداف', `تعيين تارجت جديد لـ ${u.name}`); closeModal(); showToast('تم الحفظ'); renderView(); }
+
+        function getReportsHTML() {
+            const isTL = state.currentUser.role === 'team_leader';
+            let myTeamIds = state.users.filter(u => u.teamLeaderId === state.currentUser.id).map(u => u.id);
+            if(isTL) myTeamIds.push(state.currentUser.id); // Include TL themselves
+
+            const allUnits = getAllUnits();
+            let filteredProps = allUnits.filter(p => p.status === 'sold');
+            
+            if(state.filters.reportDateFrom || state.filters.reportDateTo) {
+                const soldEvents = state.archive.filter(a => a.action === 'مباع' || a.action.includes('بيع'));
+                filteredProps = filteredProps.filter(p => {
+                    const event = soldEvents.find(e => e.details.includes(p.title));
+                    if(event) {
+                        let valid = true;
+                        const evDate = new Date(event.date);
+                        if(state.filters.reportDateFrom && evDate < new Date(state.filters.reportDateFrom)) valid = false;
+                        if(state.filters.reportDateTo) { const toD = new Date(state.filters.reportDateTo); toD.setDate(toD.getDate() + 1); if(evDate >= toD) valid = false; }
+                        return valid;
+                    }
+                    return true;
+                });
+            }
+
+            let usersToReport = state.users.filter(u => !u.isDeleted && u.role !== 'data_entry' && u.role !== 'admin');
+            if(isTL) usersToReport = usersToReport.filter(u => myTeamIds.includes(u.id));
+
+            const empStats = usersToReport.map(u => {
+                const myClients = state.clients.filter(c => !c.isDeleted && c.agentId === u.id).length;
+                const mySoldProps = filteredProps.filter(p => p.agentId === u.id || p.coAgentId === u.id);
+                const salesVol = mySoldProps.reduce((sum, p) => sum + p.price, 0);
+                const myComm = salesVol * state.settings.commissionRate;
+                return { ...u, clients: myClients, deals: mySoldProps.length, vol: salesVol, comm: myComm };
+            });
+
+            const totalSystemSales = empStats.reduce((sum, u) => sum + u.vol, 0);
+
+            const tableRows = empStats.sort((a,b) => b.vol - a.vol).map(u => `
+                <tr class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                    <td class="py-4 px-4 font-bold dark:text-white flex items-center gap-2"><i class="fas fa-user-circle text-gray-400"></i> ${u.name}</td>
+                    <td class="py-4 px-4 text-center font-bold text-blue-600">${u.clients}</td>
+                    <td class="py-4 px-4 text-center font-bold text-green-600">${u.deals}</td>
+                    <td class="py-4 px-4 font-black dark:text-gray-200">${formatCurrency(u.vol)}</td>
+                    <td class="py-4 px-4 font-black text-royal-gold">${formatCurrency(u.comm)}</td>
+                    <td class="py-4 px-4 text-center"><button onclick="viewEmployeeLog(${u.id})" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition-colors shadow-md"><i class="fas fa-list-alt mr-1"></i> كشف العمليات</button></td>
+                </tr>
+            `).join('');
+
+            return `
+            <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <h2 class="text-3xl font-black dark:text-white">تقارير الأداء التفصيلية ${isTL?'(لفريقي)':''}</h2>
+                <div class="flex gap-2 w-full md:w-auto">
+                    <button onclick="exportReportExcel()" class="flex-1 md:w-auto bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-file-excel"></i> تحميل إكسيل</button>
+                    <button onclick="exportReportPDF()" class="flex-1 md:w-auto bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-file-pdf"></i> طباعة PDF</button>
+                </div>
+            </div>
+            
+            <div class="bg-white dark:bg-royal-darkCard p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div><label class="block text-xs font-bold text-gray-500 mb-1">الفترة (من)</label><input type="date" id="fr-from" class="royal-input text-sm" value="${state.filters.reportDateFrom}" onchange="updateReportFilters()"></div>
+                <div><label class="block text-xs font-bold text-gray-500 mb-1">الفترة (إلى)</label><input type="date" id="fr-to" class="royal-input text-sm" value="${state.filters.reportDateTo}" onchange="updateReportFilters()"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="bg-gray-900 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden">
+                    <i class="fas fa-chart-bar absolute -left-4 -bottom-4 text-7xl opacity-20"></i>
+                    <p class="text-gray-400 font-bold mb-1">إجمالي المبيعات المحققة</p><h3 class="text-4xl font-black text-white">${formatCurrency(totalSystemSales)}</h3>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-royal-darkCard rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden" id="pdf-report-container">
+                <div class="p-5 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex justify-between items-center">
+                    <h4 class="font-bold text-lg dark:text-white"><i class="fas fa-medal text-royal-gold"></i> كشف أداء الموظفين</h4>
+                    <img src="${state.settings.logo}" class="h-8 hidden" id="pdf-logo">
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-right whitespace-nowrap" id="report-table"><thead class="bg-white dark:bg-royal-darkCard border-b border-gray-100 dark:border-gray-700"><tr><th class="py-3 px-4 font-black">الموظف</th><th class="py-3 px-4 font-black text-center">عملاء (نشطين)</th><th class="py-3 px-4 font-black text-center">إقفال ديل</th><th class="py-3 px-4 font-black">حجم المبيعات</th><th class="py-3 px-4 font-black">العمولة</th><th class="py-3 px-4 font-black text-center html2pdf__page-break-avoid pdf-hide">السجل</th></tr></thead><tbody>${tableRows}</tbody></table>
+                </div>
+            </div>`;
+        }
+        window.updateReportFilters = function() { state.filters.reportDateFrom = document.getElementById('fr-from').value; state.filters.reportDateTo = document.getElementById('fr-to').value; renderView(); }
+
+        window.exportReportExcel = function() {
+            showLoader("جاري تجهيز ملف الإكسيل...");
+            setTimeout(() => {
+                const table = document.getElementById('report-table');
+                const wb = XLSX.utils.table_to_book(table, {sheet: "التقرير الشهري"});
+                XLSX.writeFile(wb, `Sales_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
+                hideLoader(); showToast("تم تنزيل ملف الإكسيل بنجاح!");
+            }, 500);
+        }
+
+        window.exportReportPDF = function() {
+            showLoader("جاري إنشاء ملف الـ PDF...");
+            const logo = document.getElementById('pdf-logo');
+            if(logo) logo.classList.remove('hidden');
+            const btns = document.querySelectorAll('.pdf-hide, td:last-child');
+            btns.forEach(b => b.style.display = 'none');
+
+            const element = document.getElementById('pdf-report-container');
+            const opt = { margin: 0.5, filename: `Company_Report_${new Date().toISOString().split('T')[0]}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' } };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                if(logo) logo.classList.add('hidden');
+                btns.forEach(b => b.style.display = '');
+                hideLoader(); showToast("تم تنزيل تقرير الـ PDF!");
+            });
+        }
+
+        window.viewEmployeeLog = function(userId) {
+            const user = state.users.find(u => u.id === userId);
+            const logs = state.archive.filter(a => a.userId === userId).sort((a,b) => new Date(b.date) - new Date(a.date));
+            const logHTML = logs.length > 0 ? logs.map(l => `
+                <div class="mb-3 border-r-2 border-royal-gold pl-3 pb-2 border-b border-gray-50 dark:border-gray-800">
+                    <div class="flex justify-between items-center"><span class="font-bold text-sm text-blue-600">${l.action}</span><span class="text-xs text-gray-400 font-semibold" dir="ltr">${formatDate(l.date, true)}</span></div>
+                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-300 mt-1">${l.details}</p>
+                </div>
+            `).join('') : '<p class="text-center text-gray-400 font-bold p-6">لا يوجد نشاط.</p>';
+            openModal(`<div class="p-6 border-b border-gray-100 bg-gray-50 rounded-t-2xl flex justify-between"><h3 class="font-black text-xl"><i class="fas fa-history text-royal-gold mr-2"></i>سجل: ${user.name}</h3><button onclick="closeModal()" class="text-gray-400 hover:text-red-500"><i class="fas fa-times"></i></button></div><div class="p-6 bg-white rounded-b-2xl max-h-96 overflow-y-auto">${logHTML}</div>`);
+        }
+
+        function getArchiveHTML() {
+            let filteredArchive = state.archive;
+            if(state.filters.archiveSearch) {
+                const term = state.filters.archiveSearch.toLowerCase();
+                filteredArchive = filteredArchive.filter(a => {
+                    const user = state.users.find(u => u.id === a.userId);
+                    return a.details.toLowerCase().includes(term) || a.action.toLowerCase().includes(term) || (user && user.name.toLowerCase().includes(term));
+                });
+            }
+            if(state.filters.archiveDateFrom) filteredArchive = filteredArchive.filter(a => a.date >= state.filters.archiveDateFrom);
+            if(state.filters.archiveDateTo) { const toD = new Date(state.filters.archiveDateTo); toD.setDate(toD.getDate() + 1); filteredArchive = filteredArchive.filter(a => new Date(a.date) < toD); }
+
+            const timeline = filteredArchive.sort((a, b) => new Date(b.date) - new Date(a.date)).map(item => {
+                const u = state.users.find(x => x.id === item.userId);
+                return `
+                <div class="relative pl-4 pr-6 py-3 border-r-2 border-gray-200 dark:border-gray-700">
+                    <div class="absolute right-[-7px] top-4 w-3 h-3 rounded-full bg-royal-gold border-2 border-white dark:border-gray-900"></div>
+                    <div class="bg-white dark:bg-royal-darkCard p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
+                        <div class="flex justify-between mb-1"><span class="font-bold text-sm dark:text-white">${u?u.name:'النظام'} - <span class="text-blue-600">${item.action}</span></span><span class="text-xs text-gray-400" dir="ltr">${formatDate(item.date, true)}</span></div>
+                        <p class="text-gray-700 dark:text-gray-300 text-sm font-semibold">${item.details}</p>
+                    </div>
+                </div>`;
+            }).join('');
+            
+            return `
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4"><h2 class="text-3xl font-black dark:text-white">سجل النشاط العام (Log)</h2></div>
+            <div class="bg-white dark:bg-royal-darkCard p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div><label class="block text-xs font-bold text-gray-500 mb-1">بحث شامل</label><input type="text" id="fa-search" class="royal-input text-sm" placeholder="اسم الموظف، العملية..." value="${state.filters.archiveSearch}" oninput="updateArchiveFilters()"></div>
+                <div><label class="block text-xs font-bold text-gray-500 mb-1">التاريخ (من)</label><input type="date" id="fa-from" class="royal-input text-sm" value="${state.filters.archiveDateFrom}" onchange="updateArchiveFilters()"></div>
+                <div><label class="block text-xs font-bold text-gray-500 mb-1">التاريخ (إلى)</label><input type="date" id="fa-to" class="royal-input text-sm" value="${state.filters.archiveDateTo}" onchange="updateArchiveFilters()"></div>
+            </div>
+            <div class="max-w-4xl py-2">${timeline || '<p class="text-center font-bold text-gray-500">لا توجد بيانات مطابقة للبحث</p>'}</div>`;
+        }
+        window.updateArchiveFilters = function() { state.filters.archiveSearch = document.getElementById('fa-search').value; state.filters.archiveDateFrom = document.getElementById('fa-from').value; state.filters.archiveDateTo = document.getElementById('fa-to').value; renderView(); }
+
+        function getLoginHTML() {
+            return `
+            <div class="flex-1 flex items-center justify-center bg-[url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3')] bg-cover bg-center relative">
+                <div class="absolute inset-0 bg-gray-900/80 backdrop-blur-md"></div>
+                <div class="relative z-10 glass p-8 rounded-2xl shadow-2xl w-[90%] max-w-md border-t-4 border-royal-gold">
+                    <div class="text-center mb-8">
+                        <div class="relative inline-block">
+                            <img src="${state.settings.logo}" onerror="this.src='https://placehold.co/400x100/transparent/D4AF37?text=BETAK'" alt="Logo" class="logo-animated drop-shadow-2xl h-24 w-auto object-contain mx-auto mb-4 relative z-10">
+                        </div>
+                        <h1 class="text-3xl font-black text-gray-800 dark:text-white tracking-wide mt-2">${state.settings.companyName}</h1>
+                        <p class="text-gray-500 dark:text-gray-400 mt-2 font-bold text-sm">نظام إدارة الأملاك والمبيعات العقارية</p>
+                    </div>
+                    <form onsubmit="handleLogin(event)" class="space-y-5">
+                        <div class="relative">
+                            <i class="fas fa-user absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" id="l-user" class="royal-input text-lg font-bold text-center pr-10" required placeholder="اسم المستخدم" dir="ltr">
+                        </div>
+                        <div class="relative">
+                            <i class="fas fa-lock absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input type="password" id="l-pass" class="royal-input text-lg font-bold text-center pr-10" required placeholder="كلمة المرور" dir="ltr">
+                        </div>
+                        <button type="submit" class="w-full bg-gradient-to-r from-royal-gold to-royal-goldDark hover:from-royal-goldDark hover:to-royal-gold text-white font-black py-3.5 rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.4)] transition-all duration-300 transform hover:-translate-y-1">
+                            تسجيل الدخول <i class="fas fa-sign-in-alt ml-2"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>`;
+        }
+
+        window.handleLogin = function(e) {
+            e.preventDefault();
+            const u = state.users.find(x => x.username === document.getElementById('l-user').value && x.password === document.getElementById('l-pass').value && !x.isDeleted);
+            if(u) { state.currentUser = u; state.currentView = 'dashboard'; logActivity(u.id, 'تسجيل دخول', 'تسجيل دخول للنظام'); renderApp(); showToast(`أهلاً بك، ${u.name}!`); } 
+            else { showToast('اسم المستخدم غير صحيح أو الحساب موقوف', 'error'); }
+        }
+
+        window.handleLogout = function() { if(state.currentUser) { logActivity(state.currentUser.id, 'تسجيل خروج', 'تسجيل خروج من النظام'); state.currentUser = null; renderApp(); } }
+
+        renderApp();
+    </script>
+</body>
+</html>
